@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <list>
+#include <map>
 #include <string>
 #include <ranges>
 #include <algorithm>
@@ -18,7 +19,8 @@ import delete_from_unsorted_vector;
 import keep_vector_elems_sorted;
 
 using std::print, std::println;
-using std::vector;
+using std::vector, std::map;
+using std::string;
 
 void printc(const auto& r) {
 	print("size: {}: ", r.size());
@@ -94,5 +96,23 @@ int main() {
 		kves::psorted(v2);
 
 		println();
+	}
+
+	{
+		println("Efficiently insert elements into a map");
+		map<string, string> m;
+		m["Miles"] = "Trumpet";
+		m.insert({ "Hendrix", "Guitar" });
+		m.emplace("Krupa", "Drums");
+		printc(m);
+		println();
+
+		map<string, string> m2;
+		m2.try_emplace("Miles", "Trumpet");
+		m2.try_emplace("Hendrix", "Guitar");
+		m2.try_emplace("Krupa", "Drums");
+		m2.try_emplace("Zappa", "Guitar");
+		m2.try_emplace("Liszt", "Piano");
+		printc(m2);
 	}
 }
