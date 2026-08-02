@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="delete_from_unsorted_vector.ixx" />
+    <ClCompile Include="eff_modify_keys_map.ixx" />
     <ClCompile Include="keep_vector_elems_sorted.ixx" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="uniform_erase.ixx">

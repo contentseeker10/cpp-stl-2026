@@ -17,6 +17,7 @@
 import uniform_erase;
 import delete_from_unsorted_vector;
 import keep_vector_elems_sorted;
+import eff_modify_keys_map;
 
 using std::print, std::println;
 using std::vector, std::map;
@@ -114,5 +115,21 @@ int main() {
 		m2.try_emplace("Zappa", "Guitar");
 		m2.try_emplace("Liszt", "Piano");
 		printc(m2);
+		println();
+	}
+
+	{
+		println("Efficiently modify keys in a map");
+
+		map<unsigned int, string> racers{
+			{1, "Mario"}, {2, "Luigi"}, {3, "Bowser"},
+			{4, "Peach"}, {5, "Donkey Kong Jr"}
+		};
+
+		printc(racers);
+		emkm::node_swap(racers, 3, 5);
+		printc(racers);
+
+		println();
 	}
 }

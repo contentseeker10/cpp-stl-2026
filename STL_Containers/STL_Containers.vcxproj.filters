@@ -27,5 +27,8 @@
     <ClCompile Include="keep_vector_elems_sorted.ixx">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="eff_modify_keys_map.ixx">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
