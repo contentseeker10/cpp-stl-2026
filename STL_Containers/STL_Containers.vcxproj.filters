@@ -21,5 +21,8 @@
     <ClCompile Include="uniform_erase.ixx">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="delete_from_unsorted_vector.ixx">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

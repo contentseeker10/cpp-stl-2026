@@ -140,6 +140,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="delete_from_unsorted_vector.ixx" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="uniform_erase.ixx">
       <BuildStlModules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BuildStlModules>

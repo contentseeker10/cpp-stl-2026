@@ -18,10 +18,4 @@ export namespace ue {
 		auto remove_it = std::remove(c.begin(), c.end(), v);
 		c.erase(remove_it, c.end());
 	}
-
-	void printc(const auto& r) {
-		print("size: {}: ", r.size());
-		for (auto& e : r) print("{} ", e);
-		print("\n");
-	}
 }
