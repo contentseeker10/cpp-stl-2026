@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="STL_Containers.vcxproj" Id="d70e4b9e-c5fc-48b6-900d-e8ade14da4f0" />
+</Solution>
