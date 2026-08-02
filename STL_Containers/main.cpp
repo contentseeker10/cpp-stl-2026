@@ -5,11 +5,17 @@
  * STL Containers
 */
 
-import std;
+#include <vector>
+#include <list>
+#include <string>
+#include <ranges>
+#include <algorithm>
+#include <print>
+
 
 import uniform_erase;
 import delete_from_unsorted_vector;
-import access_vector_elems_safely;
+import keep_vector_elems_sorted;
 
 using std::print, std::println;
 using std::vector;
@@ -52,12 +58,41 @@ int main() {
 		println("Access vector elements safely\n");
 		vector v{ 19, 71, 47, 192, 4004 };
 		printc(v);
-		println("Func at() : {}", v.at(5)); // does check bounds (runtime)
-		println("Braces [] : {}", v[5]); // does check bounds via assertion (runtime)
+		println("Func at() : {}", v.at(4)); // does check bounds (runtime)
+		println("Braces [] : {}", v[4]); // does check bounds via assertion (runtime)
 		// auto& i = v[5]; // breaks assertion
 		// println("Ref to braces [] {}", i); // same
 		// v[5] = 2001; // same
 		// result is different to book
 		// probably due to compiler differences (GCC in book)
+		println();
+	}
+
+	{
+		println("Keep vector elements sorted");
+
+		
+
+		vector<std::string> v{
+			"Miles",
+			"Hendrix",
+			"Beatles",
+			"Zappa",
+			"Shostakovich"
+		};
+		kves::psorted(v);
+
+		std::ranges::sort(v);
+		kves::psorted(v);
+
+		vector<int> v2{ 1, 7, 3, 5, 2 };
+		kves::psorted(v2);
+		std::ranges::sort(v2);
+		kves::psorted(v2);
+
+		kves::insert_sorted(v2, 4);
+		kves::psorted(v2);
+
+		println();
 	}
 }
