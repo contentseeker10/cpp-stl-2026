@@ -9,6 +9,7 @@ import std;
 
 import uniform_erase;
 import delete_from_unsorted_vector;
+import access_vector_elems_safely;
 
 using std::print, std::println;
 using std::vector;
@@ -47,5 +48,16 @@ int main() {
 		println();
 	}
 
-
+	{
+		println("Access vector elements safely\n");
+		vector v{ 19, 71, 47, 192, 4004 };
+		printc(v);
+		println("Func at() : {}", v.at(5)); // does check bounds (runtime)
+		println("Braces [] : {}", v[5]); // does check bounds via assertion (runtime)
+		// auto& i = v[5]; // breaks assertion
+		// println("Ref to braces [] {}", i); // same
+		// v[5] = 2001; // same
+		// result is different to book
+		// probably due to compiler differences (GCC in book)
+	}
 }
