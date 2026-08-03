@@ -147,6 +147,7 @@
     <ClCompile Include="uniform_erase.ixx">
       <BuildStlModules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BuildStlModules>
     </ClCompile>
+    <ClCompile Include="use_um_custom_keys.ixx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

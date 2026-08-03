@@ -8,19 +8,20 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <unordered_map>
 #include <string>
 #include <ranges>
 #include <algorithm>
 #include <print>
 
-
 import uniform_erase;
 import delete_from_unsorted_vector;
 import keep_vector_elems_sorted;
 import eff_modify_keys_map;
+import use_um_custom_keys;
 
 using std::print, std::println;
-using std::vector, std::map;
+using std::vector, std::map, std::unordered_map;
 using std::string;
 
 void printc(const auto& r) {
@@ -129,6 +130,22 @@ int main() {
 		printc(racers);
 		emkm::node_swap(racers, 3, 5);
 		printc(racers);
+
+		println();
+	}
+
+	{
+		println("Use unordered_map with custom keys");
+		
+		Coordmap m{
+			{ {0, 0}, 1 },
+			{ {0, 1}, 2 },
+			{ {2, 1}, 3 }
+		};
+		print_Coordmap(m);
+
+		Coord k{ 0, 1 };
+		print("\n{{ ({}, {}): {} }}", k.x, k.y, m.at(k));
 
 		println();
 	}
