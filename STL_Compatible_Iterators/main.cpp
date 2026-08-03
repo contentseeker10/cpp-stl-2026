@@ -5,6 +5,24 @@
  * STL Compatible Iterators
 */
 
+#include <print>
+
+import iter_range;
+
+using std::print, std::println;
+
 int main() {
+
+	{
+		println("\nCreate an iterable range");
+
+		Seq<int> r(100, 110);
+
+		for (auto v : r) {
+			print("{} ", v);
+		}
+
+		println();
+	}
 
 }
