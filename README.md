@@ -16,3 +16,4 @@ Practical projects from book **"C++ STL Cookbook Second Edition" by Bill Weinman
     - Create a simple RPN calculator with *deque*
     - Count word frequency with *map*
     - Create an efficient ToDo list using *multimap*
+2. **STL Compatible Iterators**
