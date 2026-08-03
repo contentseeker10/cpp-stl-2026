@@ -5,9 +5,11 @@
  * STL Containers
 */
 
+#include <iostream>
 #include <vector>
 #include <list>
 #include <map>
+#include <set>
 #include <unordered_map>
 #include <string>
 #include <ranges>
@@ -21,7 +23,7 @@ import eff_modify_keys_map;
 import use_um_custom_keys;
 
 using std::print, std::println;
-using std::vector, std::map, std::unordered_map;
+using std::vector, std::map, std::unordered_map, std::set;
 using std::string;
 
 void printc(const auto& r) {
@@ -149,4 +151,24 @@ int main() {
 
 		println();
 	}
+
+	{
+		println("Sort and filter user input with set");
+
+		using input_it = std::istream_iterator<std::string>;
+
+		set<string> words;
+
+		input_it it{ std::cin };
+		input_it end{};
+
+		std::copy(it, end, std::inserter(words, words.end()));
+
+		for (const string& w : words) {
+			print("{} ", w);
+		}
+
+		println();
+	}
+
 }
