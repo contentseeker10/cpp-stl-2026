@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="iter_adaptors.ixx" />
+    <ClCompile Include="iter_gen_fibo.ixx" />
     <ClCompile Include="iter_range.ixx" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

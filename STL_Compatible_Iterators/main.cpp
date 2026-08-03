@@ -14,8 +14,11 @@
 
 import iter_range;
 import iter_adaptors;
+import iter_gen_fibo;
 
 using std::print, std::println;
+
+namespace ranges = std::ranges;
 
 int main() {
 
@@ -68,6 +71,20 @@ int main() {
 			print("{} ", *it);
 		}
 		println();
+
+		println();
+	}
+
+	{
+		println("Create a generator with iterators");
+
+		igfibo::printc(igfibo::fib_generator(10));
+
+		igfibo::fib_generator fib(10);
+		auto x = fib | ranges::views::transform(
+			[](unsigned long x) { return x * x; }
+		);
+		igfibo::printc(x, "squared:");
 
 		println();
 	}

@@ -24,5 +24,8 @@
     <ClCompile Include="iter_adaptors.ixx">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="iter_gen_fibo.ixx">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
