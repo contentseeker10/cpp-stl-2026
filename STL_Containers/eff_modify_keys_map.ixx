@@ -1,3 +1,10 @@
+/*
+ * Volodymyr "contentseeker10" Stepanov
+ * August 2026
+ * C++ STL Cookbook Second Edition
+ * STL Containers
+*/
+
 module;
 #include <map>
 export module eff_modify_keys_map;

@@ -159,18 +159,18 @@ int main() {
 	{
 		println("Sort and filter user input with set");
 
-		//using input_it = std::istream_iterator<std::string>;
+		using input_it = std::istream_iterator<std::string>;
 
-		//set<string> words;
+		set<string> words;
 
-		//input_it it{ std::cin };
-		//input_it end{};
+		input_it it{ std::cin };
+		input_it end{};
 
-		//std::copy(it, end, std::inserter(words, words.end()));
+		std::copy(it, end, std::inserter(words, words.end()));
 
-		//for (const string& w : words) {
-		//	print("{} ", w);
-		//}
+		for (const string& w : words) {
+			print("{} ", w);
+		}
 
 		println();
 	}
@@ -178,12 +178,12 @@ int main() {
 	{
 		println("Create a simple RPN calculator with deque");
 
-		//RPN rpn;
-		//for (string o{}; std::cin >> o; ) {
-		//	rpn.op(o);
-		//	auto stack_str = rpn.get_stack_string();
-		//	println("{}: {}", o, stack_str);
-		//}
+		RPN rpn;
+		for (string o{}; std::cin >> o; ) {
+			rpn.op(o);
+			auto stack_str = rpn.get_stack_string();
+			println("{}: {}", o, stack_str);
+		}
 
 		println();
 	}
@@ -191,48 +191,48 @@ int main() {
 	{
 		println("Count word frequency with map");
 
-		//constexpr const char* re{ "(\\w+)" };
+		constexpr const char* re{ "(\\w+)" };
 
-		//map<string, int> wordmap{};
-		//vector <std::pair<string, int>> wordvec{};
-		//std::regex word_re(re);
-		//size_t total_words{};
+		map<string, int> wordmap{};
+		vector <std::pair<string, int>> wordvec{};
+		std::regex word_re(re);
+		size_t total_words{};
 
-		//for (string s{}; std::cin >> s; ) {
-		//	auto words_begin = std::sregex_iterator(s.begin(), s.end(), word_re);
-		//	auto words_end = std::sregex_iterator();
+		for (string s{}; std::cin >> s; ) {
+			auto words_begin = std::sregex_iterator(s.begin(), s.end(), word_re);
+			auto words_end = std::sregex_iterator();
 
-		//	for (auto r_it = words_begin; r_it != words_end; ++r_it) {
-		//		std::smatch match{ *r_it };
-		//		auto word_str = match.str();
+			for (auto r_it = words_begin; r_it != words_end; ++r_it) {
+				std::smatch match{ *r_it };
+				auto word_str = match.str();
 
-		//		std::ranges::transform(word_str, word_str.begin(),
-		//			[](unsigned char c) { return tolower(c); });
+				std::ranges::transform(word_str, word_str.begin(),
+					[](unsigned char c) { return tolower(c); });
 
-		//		auto [map_it, result] = wordmap.try_emplace(word_str, 0);
-		//		auto& [w, count] = *map_it;
+				auto [map_it, result] = wordmap.try_emplace(word_str, 0);
+				auto& [w, count] = *map_it;
 
-		//		++total_words;
-		//		++count;
-		//	}
-		//}
+				++total_words;
+				++count;
+			}
+		}
 
-		//auto unique_words = wordmap.size();
-		//wordvec.reserve(unique_words);
-		//std::ranges::move(wordmap, std::back_inserter(wordvec));
-		//std::ranges::sort(wordvec, [](const auto& a, const auto& b) {
-		//	if (a.second != b.second)
-		//		return (a.second > b.second);
-		//	return (a.first < b.first);
-		//});
+		auto unique_words = wordmap.size();
+		wordvec.reserve(unique_words);
+		std::ranges::move(wordmap, std::back_inserter(wordvec));
+		std::ranges::sort(wordvec, [](const auto& a, const auto& b) {
+			if (a.second != b.second)
+				return (a.second > b.second);
+			return (a.first < b.first);
+		});
 
-		//println("total word count: {}", total_words);
-		//println("unique word count: {}", unique_words);
+		println("total word count: {}", total_words);
+		println("unique word count: {}", unique_words);
 
-		//for (int limit{ 20 }; auto& [w, count] : wordvec) {
-		//	println("{}: {}", count, w);
-		//	//if (--limit == 0) break;
-		//}
+		for (int limit{ 20 }; auto& [w, count] : wordvec) {
+			println("{}: {}", count, w);
+			//if (--limit == 0) break;
+		}
 
 		println();
 	}
