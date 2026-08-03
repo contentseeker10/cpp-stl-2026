@@ -11,6 +11,7 @@
 #include <map>
 #include <set>
 #include <unordered_map>
+#include <deque>
 #include <string>
 #include <ranges>
 #include <algorithm>
@@ -21,6 +22,7 @@ import delete_from_unsorted_vector;
 import keep_vector_elems_sorted;
 import eff_modify_keys_map;
 import use_um_custom_keys;
+import rpn_calc;
 
 using std::print, std::println;
 using std::vector, std::map, std::unordered_map, std::set;
@@ -155,17 +157,30 @@ int main() {
 	{
 		println("Sort and filter user input with set");
 
-		using input_it = std::istream_iterator<std::string>;
+		//using input_it = std::istream_iterator<std::string>;
 
-		set<string> words;
+		//set<string> words;
 
-		input_it it{ std::cin };
-		input_it end{};
+		//input_it it{ std::cin };
+		//input_it end{};
 
-		std::copy(it, end, std::inserter(words, words.end()));
+		//std::copy(it, end, std::inserter(words, words.end()));
 
-		for (const string& w : words) {
-			print("{} ", w);
+		//for (const string& w : words) {
+		//	print("{} ", w);
+		//}
+
+		println();
+	}
+
+	{
+		println("Create a simple RPN calculator with deque");
+
+		RPN rpn;
+		for (string o{}; std::cin >> o; ) {
+			rpn.op(o);
+			auto stack_str = rpn.get_stack_string();
+			println("{}: {}", o, stack_str);
 		}
 
 		println();

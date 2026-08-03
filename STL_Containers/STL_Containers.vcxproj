@@ -144,6 +144,7 @@
     <ClCompile Include="eff_modify_keys_map.ixx" />
     <ClCompile Include="keep_vector_elems_sorted.ixx" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="rpn_calc.ixx" />
     <ClCompile Include="uniform_erase.ixx">
       <BuildStlModules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BuildStlModules>
     </ClCompile>

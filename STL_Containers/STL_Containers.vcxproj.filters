@@ -33,5 +33,8 @@
     <ClCompile Include="use_um_custom_keys.ixx">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="rpn_calc.ixx">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
