@@ -12,49 +12,53 @@ module;
 #include <ranges>
 export module iter_range;
 
-export template<typename T>
-class Seq {
-public:
-	Seq(T start, T end) : seq_start {start}, seq_end {end} {}
+export namespace irange {
 
-	class iterator {
+	template<typename T>
+	class Seq {
 	public:
-		using iterator_concept = std::forward_iterator_tag;
-		using iterator_category = std::forward_iterator_tag;
-		using value_type = std::remove_cv_t<T>;
-		using difference_type = std::ptrdiff_t;
-		using pointer = const T*;
-		using reference = const T&;
+		Seq(T start, T end) : seq_start{ start }, seq_end{ end } {}
 
-		explicit iterator(T position = 0) : it_value {position} {}
+		class iterator {
+		public:
+			using iterator_concept = std::forward_iterator_tag;
+			using iterator_category = std::forward_iterator_tag;
+			using value_type = std::remove_cv_t<T>;
+			using difference_type = std::ptrdiff_t;
+			using pointer = const T*;
+			using reference = const T&;
 
-		const T& operator*() const { return it_value; }
+			explicit iterator(T position = 0) : it_value{ position } {}
 
-		iterator& operator++() {
-			++it_value;
-			return *this;
-		}
+			const T& operator*() const { return it_value; }
 
-		bool operator==(const iterator& other) const noexcept {
-			return it_value == other.it_value;
-		}
+			iterator& operator++() {
+				++it_value;
+				return *this;
+			}
 
+			bool operator==(const iterator& other) const noexcept {
+				return it_value == other.it_value;
+			}
+
+		private:
+			T it_value{};
+		};
+
+		iterator begin() const { return iterator{ seq_start }; }
+		iterator end() const { return iterator{ seq_end }; }
 	private:
-		T it_value{};
+		T seq_start{};
+		T seq_end{};
 	};
 
-	iterator begin() const { return iterator{ seq_start }; }
-	iterator end() const { return iterator{ seq_end }; }
-private:
-	T seq_start{};
-	T seq_end{};
-};
-
-export template<typename T>
-requires std::forward_iterator<typename T::iterator> // idk, requirement is not met
-void printc(const T& c) {
-	for (const auto& v : c) {
-		std::print("{} ", v);
+	export template<typename T>
+		requires std::forward_iterator<typename T::iterator> // idk, requirement is not met
+	void printc(const T& c) {
+		for (const auto& v : c) {
+			std::print("{} ", v);
+		}
+		std::print("\n");
 	}
-	std::print("\n");
+
 }
