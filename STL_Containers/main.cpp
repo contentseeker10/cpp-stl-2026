@@ -24,6 +24,7 @@ import keep_vector_elems_sorted;
 import eff_modify_keys_map;
 import use_um_custom_keys;
 import rpn_calc;
+import eff_todo_list_multimap;
 
 using std::print, std::println;
 using std::vector, std::map, std::unordered_map, std::set;
@@ -190,48 +191,62 @@ int main() {
 	{
 		println("Count word frequency with map");
 
-		constexpr const char* re{ "(\\w+)" };
+		//constexpr const char* re{ "(\\w+)" };
 
-		map<string, int> wordmap{};
-		vector <std::pair<string, int>> wordvec{};
-		std::regex word_re(re);
-		size_t total_words{};
+		//map<string, int> wordmap{};
+		//vector <std::pair<string, int>> wordvec{};
+		//std::regex word_re(re);
+		//size_t total_words{};
 
-		for (string s{}; std::cin >> s; ) {
-			auto words_begin = std::sregex_iterator(s.begin(), s.end(), word_re);
-			auto words_end = std::sregex_iterator();
+		//for (string s{}; std::cin >> s; ) {
+		//	auto words_begin = std::sregex_iterator(s.begin(), s.end(), word_re);
+		//	auto words_end = std::sregex_iterator();
 
-			for (auto r_it = words_begin; r_it != words_end; ++r_it) {
-				std::smatch match{ *r_it };
-				auto word_str = match.str();
+		//	for (auto r_it = words_begin; r_it != words_end; ++r_it) {
+		//		std::smatch match{ *r_it };
+		//		auto word_str = match.str();
 
-				std::ranges::transform(word_str, word_str.begin(),
-					[](unsigned char c) { return tolower(c); });
+		//		std::ranges::transform(word_str, word_str.begin(),
+		//			[](unsigned char c) { return tolower(c); });
 
-				auto [map_it, result] = wordmap.try_emplace(word_str, 0);
-				auto& [w, count] = *map_it;
+		//		auto [map_it, result] = wordmap.try_emplace(word_str, 0);
+		//		auto& [w, count] = *map_it;
 
-				++total_words;
-				++count;
-			}
-		}
+		//		++total_words;
+		//		++count;
+		//	}
+		//}
 
-		auto unique_words = wordmap.size();
-		wordvec.reserve(unique_words);
-		std::ranges::move(wordmap, std::back_inserter(wordvec));
-		std::ranges::sort(wordvec, [](const auto& a, const auto& b) {
-			if (a.second != b.second)
-				return (a.second > b.second);
-			return (a.first < b.first);
-		});
+		//auto unique_words = wordmap.size();
+		//wordvec.reserve(unique_words);
+		//std::ranges::move(wordmap, std::back_inserter(wordvec));
+		//std::ranges::sort(wordvec, [](const auto& a, const auto& b) {
+		//	if (a.second != b.second)
+		//		return (a.second > b.second);
+		//	return (a.first < b.first);
+		//});
 
-		println("total word count: {}", total_words);
-		println("unique word count: {}", unique_words);
+		//println("total word count: {}", total_words);
+		//println("unique word count: {}", unique_words);
 
-		for (int limit{ 20 }; auto& [w, count] : wordvec) {
-			println("{}: {}", count, w);
-			//if (--limit == 0) break;
-		}
+		//for (int limit{ 20 }; auto& [w, count] : wordvec) {
+		//	println("{}: {}", count, w);
+		//	//if (--limit == 0) break;
+		//}
+
+		println();
+	}
+
+	{
+		println("Create an efficient ToDo list using multimap");
+
+		etlm::todomap todo{
+			{1, "wash dishes"},
+			{0, "watch tv"},
+			{2, "do homework"},
+			{0, "read comics"},
+		};
+		etlm::rprint(todo);
 
 		println();
 	}
