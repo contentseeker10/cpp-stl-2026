@@ -17,3 +17,9 @@ Practical projects from book **"C++ STL Cookbook Second Edition" by Bill Weinman
     - Count word frequency with *map*
     - Create an efficient ToDo list using *multimap*
 2. **STL Compatible Iterators**
+    - Create *an iterable range*
+    - Use *traits* with your iterators for STL compatibility
+    - Use *iterator adaptors* to populate STL containers
+    - Create *a generator* with iterators
+    - Create a generator with *coroutines*
+    - Build a zip iterator adaptor
