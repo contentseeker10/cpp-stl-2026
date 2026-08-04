@@ -11,10 +11,12 @@
 #include <deque>
 #include <iostream>
 #include <vector>
+#include <map>
 
 import iter_range;
 import iter_adaptors;
 import iter_gen_fibo;
+import zip_iterator;
 
 using std::print, std::println;
 
@@ -107,6 +109,39 @@ int main() {
 		auto gen2 = icorogen::gen_fib<ulong>(10);
 		for (auto i : gen2 | ranges::views::transform([](ulong x) { return x * x; })) {
 			print("{} ", i);
+		}
+
+		println();
+	}
+
+	{
+		println("\nBuild a zip iterator adaptor");
+
+		std::vector<std::string> vec_a{ "Bob", "John", "Joni" };
+		std::vector<std::string> vec_b{ "Dylan", "Williams", "Mitchell" };
+
+		print("vec_a: ");
+		for (const auto& e : vec_a) print("{} ", e);
+		println();
+
+		print("vec_b: ");
+		for (const auto& e : vec_b) print("{} ", e);
+		println();
+
+		print("zipped: ");
+		for (const auto& [a, b] : zip_iterator(vec_a, vec_b)) {
+			print("[{}, {}] ", a, b);
+		}
+
+		std::map<std::string, std::string> name_map{};
+
+		for (const auto& [a, b] : zip_iterator(vec_a, vec_b)) {
+			name_map.try_emplace(a, b);
+		}
+
+		print("name_map: ");
+		for (const auto& [a, b] : name_map) {
+			print("[{}, {}] ", a, b);
 		}
 
 		println();
