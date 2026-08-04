@@ -89,4 +89,27 @@ int main() {
 		println();
 	}
 
+	{
+		println("Create a generator with coroutines");
+
+		using ulong = unsigned long;
+		auto gen = icorogen::gen_seq<ulong>(10);
+		while (gen) {
+			print("{} ", gen());
+		}
+		println();
+
+		for (auto i : icorogen::gen_fib<ulong>(10)) {
+			print("{} ", i);
+		}
+		println();
+
+		auto gen2 = icorogen::gen_fib<ulong>(10);
+		for (auto i : gen2 | ranges::views::transform([](ulong x) { return x * x; })) {
+			print("{} ", i);
+		}
+
+		println();
+	}
+
 }
