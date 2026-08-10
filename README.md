@@ -30,3 +30,4 @@ Practical projects from book **"C++ STL Cookbook Second Edition" by Bill Weinman
     - Combine predicates with logical conjuction
     - Pass common parameters to multiple lambdas
     - Create a simple jump table with *mapped lambdas*
+4. **STL Algorithms**
