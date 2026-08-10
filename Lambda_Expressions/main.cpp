@@ -54,6 +54,12 @@ auto combine(F binary_func, A a, B b) {
 	};
 }
 
+auto braces(const char a, const char b) {
+	return [a, b](const auto v) {
+		print("{}{}{}", a, v, b);
+	};
+}
+
 int main() {
 	{
 		println("\n--- Use lambdas as predicates with algorithms ---\n");
@@ -145,4 +151,22 @@ int main() {
 
 		println();
 	}
+
+	{
+		println("\n--- Pass common parameters to multiple lambdas ---\n");
+
+		auto a = braces('(', ')');
+		auto b = braces('[', ']');
+		auto c = braces('{', '}');
+		auto d = braces('|', '|');
+
+		for (auto i : { 1, 2, 3, 4, 5 }) {
+			for (auto x : { a, b, c, d }) x(i);
+			print("\n");
+		}
+
+		println();
+	}
+
+
 }
