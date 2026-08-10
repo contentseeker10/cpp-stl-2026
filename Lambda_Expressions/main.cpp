@@ -6,12 +6,18 @@
 */
 
 #include <print>
+
 #include <vector>
+#include <deque>
+#include <list>
+
 #include <algorithm>
 #include <ranges>
+#include <functional>
 
 using std::print, std::println;
-using std::vector;
+using std::vector, std::deque, std::list;
+using std::function;
 
 /*bool is_div4(const int i) {
 	return i % 4 == 0;
@@ -30,7 +36,7 @@ auto is_div_by(const int divisor) {
 
 int main() {
 	{
-		println("Use lambdas as predicates with algorithms");
+		println("\n--- Use lambdas as predicates with algorithms ---\n");
 
 		vector<int> v{ 1, 7, 12, 20, 4, 9, 4, 8 };
 
@@ -59,5 +65,37 @@ int main() {
 		println();
 	}
 
+	{
+		println("\n--- Create a polymorhic wrapper with std::function ---\n");
 
+		deque<int> d;
+		list<int> l;
+		vector<int> v;
+
+		auto print_c = [](const auto& c) {
+			print("container: {}: ", typeid(c).name());
+			for (const auto i : c) print("{} ", i);
+			print("\n");
+		};
+
+		auto push_c = [](auto& container) {
+			return [&container](const auto value) {
+				container.push_back(value);
+			};
+		};
+
+		const vector<function<void(int)>> consumers{ push_c(d), push_c(l), push_c(v) };
+
+		for (auto& c : consumers) {
+			for (int i{ 0 }; i < 10; ++i) {
+				c(i);
+			}
+		}
+
+		print_c(d);
+		print_c(l);
+		print_c(v);
+
+		println();
+	}
 }
