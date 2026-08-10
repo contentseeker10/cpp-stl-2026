@@ -18,6 +18,7 @@
 using std::print, std::println;
 using std::vector, std::deque, std::list;
 using std::function;
+using std::string;
 
 /*bool is_div4(const int i) {
 	return i % 4 == 0;
@@ -44,6 +45,13 @@ auto concat(const T t, const Ts... ts) {
 	else {
 		return t;
 	}
+}
+
+template <typename F, typename A, typename B>
+auto combine(F binary_func, A a, B b) {
+	return [=](auto param) {
+		return binary_func(a(param), b(param));
+	};
 }
 
 int main() {
@@ -123,5 +131,18 @@ int main() {
 		println();
 	}
 
+	{
+		println("\n--- Combine predicates with logical conjuction ---\n");
 
+		auto begins_with = [](const string& s) { return s.find("a") == 0; };
+		auto ends_with = [](const string& s) { return s.rfind("b") == s.length() - 1; };
+		auto bool_and = [](const auto& l, const auto& r) { return l & r; };
+
+		vector<string> v{ "aabb", "bbaa", "foo", "bar", "abazb" };
+		vector<string> out;
+		std::copy_if(v.begin(), v.end(), std::back_inserter(out), combine(bool_and, begins_with, ends_with));
+		print("{}", out);
+
+		println();
+	}
 }
