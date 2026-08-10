@@ -23,3 +23,10 @@ Practical projects from book **"C++ STL Cookbook Second Edition" by Bill Weinman
     - Create *a generator* with iterators
     - Create a generator with *coroutines*
     - Build a zip iterator adaptor
+3. **Lambda Expressions**
+    - Use lambdas as *predicates* with algorithms
+    - Create a polymorphic wrapper with *std::function*
+    - Concatenate lambdas with recursion
+    - Combine predicates with logical conjuction
+    - Pass common parameters to multiple lambdas
+    - Create a simple jump table with *mapped lambdas*

@@ -10,6 +10,7 @@
 #include <vector>
 #include <deque>
 #include <list>
+#include <map>
 
 #include <algorithm>
 #include <ranges>
@@ -58,6 +59,61 @@ auto braces(const char a, const char b) {
 	return [a, b](const auto v) {
 		print("{}{}{}", a, v, b);
 	};
+}
+
+const char prompt(const char* p) {
+	constexpr size_t BUFLEN{ 4 };
+	constexpr int NL{ '\n' };
+	char bufin[BUFLEN]{};
+	int bufchar{};
+
+	auto char_upper = [](char c) -> char {
+		if (c >= 'a' && c <= 'z') return c - ('a' - 'A');
+		else return c;
+	};
+
+	auto flush_stdin = [] {
+		int c{};
+		while (c != NL && c != EOF) c = std::getchar();
+	};
+
+	print("{} > ", p);
+	for (size_t i{}; i < BUFLEN && (bufchar = getchar()) != NL; ++i) {
+		bufin[i] = (char)bufchar;
+	}
+
+	if (bufchar != NL) flush_stdin();
+	if (bufchar == EOF) exit(0);
+
+	const char r0 = bufin[0];
+	const char r1 = bufin[1];
+
+	if (r0 == 0 || r0 == NL) return 0;
+	else if (r1 != 0 && r1 != NL) {
+		println("Response is too long");
+		return 0;
+	}
+	else return char_upper(r0);
+}
+
+const bool jump(const char select) {
+	using jfunc = std::function<void()>;
+
+	static const std::map<char, jfunc> jmap{
+		{ 'A', [] { println("func A\n"); } },
+		{ 'B', [] { println("func B\n"); } },
+		{ 'C', [] { println("func C\n"); } },
+		{ 'D', [] { println("func D\n"); } },
+		{ 'X', [] { println("bye bye jump table\n"); } }
+	};
+
+	const auto it = jmap.find(select);
+	if (it != jmap.end()) it->second();
+	else {
+		println("Invalid response");
+		return false;
+	}
+	return true;
 }
 
 int main() {
@@ -163,6 +219,18 @@ int main() {
 		for (auto i : { 1, 2, 3, 4, 5 }) {
 			for (auto x : { a, b, c, d }) x(i);
 			print("\n");
+		}
+
+		println();
+	}
+
+	{
+		println("\n--- Create a simple jump table with mapped lambdas ---\n");
+
+		const char* pstr{ "What to do? (A/B/C/D/X)" };
+		for (auto key = prompt(pstr); ; key = prompt(pstr)) {
+			if (key) jump(key);
+			if (key == 'X') break;
 		}
 
 		println();
