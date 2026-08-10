@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <numeric>
 #include <memory>
+#include <random>
 
 using std::print, std::println;
 using std::vector, std::list;
@@ -34,7 +35,13 @@ namespace views = ranges::views;
 //	println();
 //}
 
+void check_sorted(const auto& c) {
+	if (!ranges::is_sorted(c)) print("un");
+	print("sorted: ");
+}
+
 void printc(auto& c, std::string_view s = "") {
+	check_sorted(c);
 	if (s.size()) print("{}: ", s);
 	for (auto e : c) print("[{}] ", e);
 	print("\n");
@@ -54,6 +61,12 @@ namespace vs {
 	string join(const auto& c, std::string_view sep = "") {
 		return join(c.begin(), c.end(), sep);
 	}
+}
+
+void randomize(auto& c) {
+	static std::random_device rd;
+	static std::default_random_engine rng(rd());
+	ranges::shuffle(c, rng);
 }
 
 int main() {
@@ -116,9 +129,28 @@ int main() {
 	}
 
 	{
-		println("\n---  ---\n");
+		println("\n--- Sort containers with std::sort ---\n");
 	
-		
+		vector<int> v{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+		printc(v);
+
+		randomize(v);
+		printc(v);
+
+		//std::sort(v.begin(), v.end());
+		ranges::sort(v);
+		printc(v);
+
+		randomize(v);
+
+		auto middle{ v.begin() + (v.size() / 2) };
+		std::partial_sort(v.begin(), middle, v.end());
+		printc(v);
+
+		randomize(v);
+		printc(v);
+		std::partition(v.begin(), v.end(), [](int i) { return i > 5; });
+		printc(v);
 	
 		println();
 	}
