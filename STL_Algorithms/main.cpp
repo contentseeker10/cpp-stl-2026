@@ -22,7 +22,7 @@
 using std::print, std::println;
 using std::vector, std::list;
 using std::string;
-using std::back_inserter;
+using std::back_inserter, std::transform;
 
 namespace ranges = std::ranges;
 namespace views = ranges::views;
@@ -154,4 +154,41 @@ int main() {
 	
 		println();
 	}
+
+	{
+		println("\n--- Modify containers with std::transform ---\n");
+	
+		vector<int> v1{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+		vector<int> v2{};
+
+		printc(v1, "v1");
+
+		println("squares:");
+		// does not guarantee order of transform operation
+		transform(v1.begin(), v1.end(), back_inserter(v2), [](int x) { return x * x; });
+		printc(v2);
+
+		vector<string> vstr1{ "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto" };
+		vector<string> vstr2{};
+
+		printc(vstr1, "vstr1");
+		println("str_lower:");
+		transform(vstr1.begin(), vstr1.end(), back_inserter(vstr2), [](string& s) {
+			auto char_lower = [](char c) -> char {
+				if (c >= 'A' && c <= 'Z') return c + ('a' - 'A');
+				else return c;
+			};
+			for (auto& c : s) c = char_lower(c);
+			return s;
+		});
+		printc(vstr2, "vstr2");
+
+		println("ranges squares:");
+		auto view = views::transform(v1, [](int x) { return x * x; });
+		printc(view, "view");
+
+		println();
+	}
+
+
 }
