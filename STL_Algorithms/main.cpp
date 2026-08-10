@@ -22,7 +22,7 @@
 using std::print, std::println;
 using std::vector, std::list;
 using std::string;
-using std::back_inserter, std::transform, std::find;
+using std::back_inserter, std::transform, std::find, std::clamp;
 
 namespace ranges = std::ranges;
 namespace views = ranges::views;
@@ -43,7 +43,7 @@ void check_sorted(const auto& c) {
 void printc(auto& c, std::string_view s = "") {
 	check_sorted(c);
 	if (s.size()) print("{}: ", s);
-	for (auto e : c) print("[{}] ", e);
+	for (auto e : c) print("{:>5} ", e);
 	print("\n");
 }
 
@@ -234,6 +234,33 @@ int main() {
 
 		auto vw1 = views::filter(c, [](const City& c) { return c.pop > 20'000'000; });
 		for (const City& e : vw1) println("{}", e.str());
+	
+		println();
+	}
+
+	{
+		println("\n--- Limit container values with std::clamp ---\n");
+	
+		const auto il = { 0, -12, 2001, 4, 5, -14, 100, 200, 30000 };
+
+		constexpr int ilow{ 0 };
+		constexpr int ihigh{ 500 };
+
+		vector<int> voi{ il };
+		println("vector voi before:");
+		printc(voi);
+
+		println("vector voi after:");
+		for (auto& e : voi) e = clamp(e, ilow, ihigh);
+		printc(voi);
+
+		list<int> loi{ il };
+		println("list loi before:");
+		printc(loi);
+
+		transform(loi.begin(), loi.end(), loi.begin(), [=](auto e) { return clamp(e, ilow, ihigh); });
+		println("list loi after:");
+		printc(loi);
 	
 		println();
 	}
