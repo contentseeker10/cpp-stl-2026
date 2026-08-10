@@ -12,6 +12,8 @@
 
 #include <vector>
 #include <list>
+#include <array>
+#include <map>
 
 #include <ranges>
 #include <algorithm>
@@ -20,9 +22,9 @@
 #include <random>
 
 using std::print, std::println;
-using std::vector, std::list;
+using std::vector, std::list, std::array, std::map;
 using std::string;
-using std::back_inserter, std::transform, std::find, std::clamp;
+using std::back_inserter, std::transform, std::find, std::clamp, std::sample;
 
 namespace ranges = std::ranges;
 namespace views = ranges::views;
@@ -67,6 +69,10 @@ void randomize(auto& c) {
 	static std::random_device rd;
 	static std::default_random_engine rng(rd());
 	ranges::shuffle(c, rng);
+}
+
+int iround(const double& d) {
+	return static_cast<int>(std::round(d));
 }
 
 int main() {
@@ -261,6 +267,36 @@ int main() {
 		transform(loi.begin(), loi.end(), loi.begin(), [=](auto e) { return clamp(e, ilow, ihigh); });
 		println("list loi after:");
 		printc(loi);
+	
+		println();
+	}
+
+	{
+		println("\n--- Sample data sets with std::sample ---\n");
+	
+		constexpr size_t n_data{ 200'000 };
+		constexpr size_t n_samples{ 500 };
+		constexpr int mean{};
+		constexpr size_t dev{ 3 };
+
+		std::random_device rd{};
+		std::mt19937 rng(rd());
+		std::normal_distribution<> dist(mean, dev);
+
+		array<int, n_data> data{};
+		for (auto& e : data) e = iround(dist(rng));
+
+		array<int, n_samples> samples{};
+		sample(data.begin(), data.end(), samples.begin(), n_samples, rng);
+
+		map<int, size_t> hist{};
+		for (const int i : samples) ++hist[i];
+
+		constexpr size_t scale{ 3 };
+		println("{:>3} {:>5} {:<}/{}", "n", "count", "graph", scale);
+		for (const auto& [value, count] : hist) {
+			println("{:>3} ({:>3}) {}", value, count, string(count / scale, '*'));
+		}
 	
 		println();
 	}
