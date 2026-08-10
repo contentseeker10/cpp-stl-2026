@@ -8,17 +8,23 @@
 #include <iostream>
 #include <print>
 #include <string>
+#include <numbers>
 
 #include <vector>
+#include <list>
 
+#include <ranges>
 #include <algorithm>
 #include <numeric>
 #include <memory>
 
 using std::print, std::println;
-using std::vector;
+using std::vector, std::list;
 using std::string;
 using std::back_inserter;
+
+namespace ranges = std::ranges;
+namespace views = ranges::views;
 
 //{
 //	println("\n---  ---\n");
@@ -32,6 +38,22 @@ void printc(auto& c, std::string_view s = "") {
 	if (s.size()) print("{}: ", s);
 	for (auto e : c) print("[{}] ", e);
 	print("\n");
+}
+
+namespace vs {
+	template <typename I>
+	string join(I it, I end_it, std::string_view sep = "") {
+		string ostr{};
+		if (it != end_it) ostr = std::format("{}", *it++);
+		while (it != end_it) {
+			ostr = std::format("{}{}{}", ostr, sep, *it++);
+		}
+		return ostr;
+	}
+
+	string join(const auto& c, std::string_view sep = "") {
+		return join(c.begin(), c.end(), sep);
+	}
 }
 
 int main() {
@@ -77,5 +99,27 @@ int main() {
 		println();
 	}
 
+	{
+		println("\n--- Join container elements into a string ---\n");
 
+		vector<string> lads{ "john", "paul", "george", "ringo", "billy" };
+		println("{}", vs::join(lads, ", "));
+
+		namespace num = std::numbers;
+		list<double> constants{ num::pi, num::e, num::sqrt2 };
+		println("{}", vs::join(constants, ", "));
+
+		auto lads_view = views::join(lads);
+		println("{}", vs::join(lads_view, ":"));
+
+		println();
+	}
+
+	{
+		println("\n---  ---\n");
+	
+		
+	
+		println();
+	}
 }
