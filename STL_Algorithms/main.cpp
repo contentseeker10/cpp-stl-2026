@@ -22,7 +22,7 @@
 using std::print, std::println;
 using std::vector, std::list;
 using std::string;
-using std::back_inserter, std::transform;
+using std::back_inserter, std::transform, std::find;
 
 namespace ranges = std::ranges;
 namespace views = ranges::views;
@@ -190,5 +190,51 @@ int main() {
 		println();
 	}
 
+	{
+		println("\n--- Search containers with std::find ---\n");
+	
+		const vector<int> v{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
+		auto it1 = find(v.begin(), v.end(), 7);
+		if (it1 != v.end()) println("found: {}", *it1);
+		else println("not found");
+
+		struct City {
+			string name{};
+			unsigned pop{};
+			bool operator==(const City& o) const {
+				return name == o.name;
+			}
+			bool operator==(const char* cstr) const {
+				return name == cstr;
+			}
+			string str() const {
+				return std::format("[{}, {}]", name, pop);
+			}
+		};
+
+		const vector<City> c{
+			{ "London", 9425622 },
+			{ "Berlin", 3566791 },
+			{ "Tokyo",  37435191 },
+			{ "Cairo",  20485965 }
+		};
+
+		auto it2 = find(c.begin(), c.end(), City({ "Berlin", {} }));
+		if (it2 != c.end()) println("found: {}", it2->str());
+		else println("not found");
+
+		auto it3 = find(c.begin(), c.end(), "Berlin");
+		if (it3 != c.end()) println("found: {}", it3->str());
+		else println("not found");
+
+		auto it4 = std::find_if(c.begin(), c.end(), [](const City& item) { return item.pop > 20'000'000; });
+		if (it4 != c.end()) println("found: {}", it4->str());
+		else println("not found");
+
+		auto vw1 = views::filter(c, [](const City& c) { return c.pop > 20'000'000; });
+		for (const City& e : vw1) println("{}", e.str());
+	
+		println();
+	}
 }
