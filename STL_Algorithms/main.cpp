@@ -341,5 +341,25 @@ int main() {
 		println();
 	}
 
+	{
+		println("\n--- Generate permutations of data sequences ---\n");
+	
+		vector<string> vs{ "dog", "cat", "velociraptor" };
+		sort(vs.begin(), vs.end());
 
+		do {
+			printc(vs);
+		} while (std::next_permutation(vs.begin(), vs.end()));
+
+		vector<int> vi{ 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 };
+		sort(vi.begin(), vi.end());
+		printc(vi, "vi");
+		long count{};
+		do {
+			++count;
+		} while (std::next_permutation(vi.begin(), vi.end()));
+		print("number of permutations: {}\n", count);
+	
+		println();
+	}
 }
