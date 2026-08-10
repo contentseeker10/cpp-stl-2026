@@ -37,12 +37,12 @@ namespace views = ranges::views;
 //	println();
 //}
 
-void check_sorted(const auto& c) {
+void check_sorted(auto c) {
 	if (!ranges::is_sorted(c)) print("un");
 	print("sorted: ");
 }
 
-void printc(auto& c, std::string_view s = "") {
+void printc(auto c, std::string_view s = "") {
 	check_sorted(c);
 	if (s.size()) print("{}: ", s);
 	for (auto e : c) print("{:>5} ", e);
@@ -73,6 +73,11 @@ void randomize(auto& c) {
 
 int iround(const double& d) {
 	return static_cast<int>(std::round(d));
+}
+
+auto rng() {
+	std::random_device rd{};
+	return std::mt19937(rd());
 }
 
 int main() {
@@ -300,4 +305,41 @@ int main() {
 	
 		println();
 	}
+
+	{
+		println("\n--- Use ranges for more powerful algorithms ---\n");
+	
+		auto even = [](auto i) { return i % 2 == 0; };
+		auto square = [](auto i) { return i * i; };
+
+		const auto r = views::iota(0, 10);
+		printc(r);
+
+		vector<int> v1(r.size());
+		ranges::copy(r, v1.begin());
+		printc(v1);
+
+		vector<int> v2{};
+		ranges::copy(r, back_inserter(v2));
+		printc(v2);
+
+		vector<int> v3 = r
+			| views::transform([](auto i) { return i * 2; })
+			| ranges::to<vector<int>>();
+		printc(v3);
+
+		ranges::shuffle(v1, rng());
+		printc(v1);
+
+		ranges::sort(v1);
+		printc(v1);
+
+		printc(views::iota(0) | views::take(10));
+
+		printc(r | views::filter(even) | views::transform(square) | views::reverse);
+	
+		println();
+	}
+
+
 }
