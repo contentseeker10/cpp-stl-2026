@@ -24,7 +24,7 @@
 using std::print, std::println;
 using std::vector, std::list, std::array, std::map;
 using std::string;
-using std::back_inserter, std::transform, std::find, std::clamp, std::sample;
+using std::back_inserter, std::transform, std::find, std::clamp, std::sample, std::merge;
 
 namespace ranges = std::ranges;
 namespace views = ranges::views;
@@ -359,6 +359,27 @@ int main() {
 			++count;
 		} while (std::next_permutation(vi.begin(), vi.end()));
 		print("number of permutations: {}\n", count);
+	
+		println();
+	}
+
+	{
+		println("\n--- Merge sorted containers ---\n");
+	
+		vector<string> vs1{ "dog", "cat", "velociraptor" };
+		vector<string> vs2{ "kirk", "sulu", "spock" };
+		vector<string> dest{};
+		printc(vs1, "vs1");
+		printc(vs2, "vs2");
+
+		sort(vs1.begin(), vs1.end());
+		sort(vs2.begin(), vs2.end());
+
+		printc(vs1, "vs1");
+		printc(vs2, "vs2");
+
+		merge(vs1.begin(), vs1.end(), vs2.begin(), vs2.end(), back_inserter(dest));
+		printc(dest, "dest");
 	
 		println();
 	}

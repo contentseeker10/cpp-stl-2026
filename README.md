@@ -31,3 +31,13 @@ Practical projects from book **"C++ STL Cookbook Second Edition" by Bill Weinman
     - Pass common parameters to multiple lambdas
     - Create a simple jump table with *mapped lambdas*
 4. **STL Algorithms**
+    - *Copy* from one iterator to another
+    - Join container elements into a string
+    - Sort containers with *std::sort*
+    - Modify containers with *std::transform*
+    - Search containers with *std::find*
+    - Limit container values with *std::clamp*
+    - Sample data sets with *std::sample*
+    - Use *ranges* for more powerful algorithms
+    - Generate *permutations* of data sequences
+    - *Merge* sorted containers
