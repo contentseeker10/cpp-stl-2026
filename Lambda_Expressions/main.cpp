@@ -34,6 +34,18 @@ auto is_div_by(const int divisor) {
 	return [divisor](const int i) { return i % divisor == 0; };
 }
 
+template <typename T, typename... Ts>
+auto concat(const T t, const Ts... ts) {
+	if constexpr (sizeof...(ts) > 0) {
+		return [=](const auto... parameters) {
+			return t(concat(ts...)(parameters...));
+		};
+	}
+	else {
+		return t;
+	}
+}
+
 int main() {
 	{
 		println("\n--- Use lambdas as predicates with algorithms ---\n");
@@ -98,4 +110,18 @@ int main() {
 
 		println();
 	}
+
+	{
+		println("\n--- Concatenate lambdas with recursion ---\n");
+
+		auto twice = [](const auto i) { return i * 2; };
+		auto thrice = [](const auto i) { return i * 3; };
+
+		auto combined = concat(thrice, twice, std::plus<int>{});
+		println("{}", combined(2, 3));
+
+		println();
+	}
+
+
 }
