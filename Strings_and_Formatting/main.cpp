@@ -6,8 +6,10 @@
 */
 
 #include <iosfwd>
+#include <iostream>
 #include <print>
 #include <format>
+#include <cstdio>
 
 #include <string>
 #include <numbers>
@@ -115,6 +117,19 @@ string trimstr(const string& s) {
 	return s.substr(first, (last - first + 1));
 }
 
+bool prompt(const string_view s, const string_view s2 = "") {
+	if (s2.size()) print("{} ({}): ", s, s2);
+	else print("{}: ", s);
+	fflush(stdout);
+	return true;
+}
+
+void clearistream() {
+	int c{};
+	std::cin.clear();
+	while (c != '\n' && c != EOF) c = getchar();
+}
+
 int main() {
 	{
 		println("\n--- Use string_view as a lightweight string object ---\n");
@@ -209,6 +224,36 @@ int main() {
 		s = trimstr(s);
 		println("[{}]", s);
 	
+		println();
+	}
+
+	{
+		println("\n--- Read strings from user input ---\n");
+	
+		constexpr size_t MAXLINE{ 1024 * 10 };
+		char s[MAXLINE]{};
+		const char* p1{ "Words here" };
+		prompt(p1);
+		std::cin.getline(s, MAXLINE, '\n');
+		println("{}", s);
+
+		string line{};
+		const char* p1a{ "More words here" };
+		prompt(p1a, "p1a");
+		getline(std::cin, line, '\n');
+		println("{}", line);
+		
+		const char* p2{ "Doubles here" };
+		double a{};
+		double b{};
+		for (prompt(p2); !(std::cin >> a >> b); prompt(p2))
+		{
+			println("not numeric");
+			clearistream();
+		}
+		println("You entered {} and {}", a, b);
+		clearistream();
+
 		println();
 	}
 }
