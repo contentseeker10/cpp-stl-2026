@@ -17,8 +17,11 @@
 
 #include <chrono>
 
+#include <vector>
+
 using std::print, std::println, std::format;
 using std::string, std::string_view;
+using std::vector;
 
 //{
 //	println("\n---  ---\n");
@@ -134,6 +137,29 @@ void clearistream() {
 size_t wordcount(auto& is) {
 	using it_t = std::istream_iterator<string>;
 	return std::distance(it_t(is), it_t());
+}
+
+struct City
+{
+	string name;
+	unsigned long population;
+	double latitude;
+	double longitude;
+};
+
+std::istream& operator>>(std::istream& in, City& c) {
+	in >> std::ws;
+	std::getline(in, c.name);
+	in >> c.population >> c.latitude >> c.longitude;
+	return in;
+}
+
+string make_commas(const uint64_t num) {
+	auto s = std::to_string(num);
+	for (auto i = s.size(); i > 3; i -= 3) {
+		s.insert(i - 3, ",");
+	}
+	return s;
 }
 
 int main() {
@@ -273,4 +299,28 @@ int main() {
 		println();
 	}
 
+	{
+		println("\n--- Initialize complex structures from file input ---\n");
+
+		constexpr const char* fn{ "cities.txt" };
+
+		vector<City> cities;
+
+		std::ifstream infile(fn, std::ios_base::in);
+		if (!infile.is_open()) {
+			println("failed to open file {}", fn);
+			return 1;
+		}
+		for (City c{}; infile >> c;)
+		{
+			cities.emplace_back(c);
+		}
+
+		for (const auto& [name, pop, lat, lon] : cities)
+		{
+			println("{:.<15} pop {:.10} coords {}, {}", name, make_commas(pop), lat, lon);
+		}
+
+		println();
+	}
 }
