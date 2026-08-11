@@ -5,11 +5,14 @@
  * Strings and Formatting
 */
 
+#include <iosfwd>
 #include <print>
 #include <format>
 
 #include <string>
 #include <numbers>
+
+#include <chrono>
 
 using std::print, std::println, std::format;
 using std::string, std::string_view;
@@ -36,6 +39,72 @@ struct std::formatter<Frac<T>> : std::formatter<int> {
 		return format_to(ctx.out(), "{}/{}", o.n, o.d);
 	}
 };
+
+void timer(string(*f)()) {
+	using namespace std::chrono;
+	auto t1 = high_resolution_clock::now();
+	string s{ f() };
+	auto t2 = high_resolution_clock::now();
+	duration<double, std::milli> ms = t2 - t1;
+	println("{}", s);
+	println("duration: {} ms", ms.count());
+}
+
+#define ITERS 1'000'000
+
+string append_string() {
+	println("\n== append_string:");
+	string a{ "a" };
+	string b{ "b" };
+	long n{};
+	while (++n) {
+		string x{};
+		x.append(a);
+		x.append(", ");
+		x.append(b);
+		if (n >= ITERS) return x;
+	}
+	return "error";
+}
+
+string concat_string() {
+	println("\n== concat_string:");
+	string a{ "a" };
+	string b{ "b" };
+	long n{};
+	while (++n) {
+		string x{};
+		x += a + ", " + b;
+		if (n >= ITERS) return x;
+	}
+	return "error";
+}
+
+string concat_ostringstream() {
+	println("\n== ostringstream:");
+	string a{ "a" };
+	string b{ "b" };
+	long n{};
+	while (++n) {
+		std::ostringstream x{};
+		x << a << ", " << b;
+		if (n >= ITERS) return x.str();
+	}
+	return "error";
+}
+
+string concat_format() {
+	println("\n== concat_format:");
+	string a{ "a" };
+	string b{ "b" };
+	long n{};
+	while (++n) {
+		string x{};
+		x = format("{}, {}", a, b);
+		if (n >= ITERS) return x;
+	}
+	return "error";
+}
 
 int main() {
 	{
@@ -92,8 +161,31 @@ int main() {
 	}
 
 	{
-		println("\n---  ---\n");
+		println("\n--- Concatenate strings ---\n");
 	
+		string a{ "a" };
+		string b{ "b" };
+
+		string x{};
+
+		//x += a + ", " + b;
+
+		//x.append(a);
+		//x.append(", ");
+		//x.append(b);
+
+		//std::ostringstream xs{};
+		//xs << a << ", " << b;
+		
+		x = format("{}, {}", a, b);
+
+		//println("{}", xs.str());
+		println("{}", x);
+
+		timer(append_string);
+		timer(concat_string);
+		timer(concat_ostringstream);
+		timer(concat_format);
 		
 	
 		println();
