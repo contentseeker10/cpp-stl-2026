@@ -7,6 +7,7 @@
 
 #include <iosfwd>
 #include <iostream>
+#include <fstream>
 #include <print>
 #include <format>
 #include <cstdio>
@@ -128,6 +129,11 @@ void clearistream() {
 	int c{};
 	std::cin.clear();
 	while (c != '\n' && c != EOF) c = getchar();
+}
+
+size_t wordcount(auto& is) {
+	using it_t = std::istream_iterator<string>;
+	return std::distance(it_t(is), it_t());
 }
 
 int main() {
@@ -256,4 +262,15 @@ int main() {
 
 		println();
 	}
+
+	{
+		println("\n--- Count words in a file ---\n");
+	
+		const char* fn{ "testdata.txt" };
+		auto infile = std::ifstream(fn, std::ios_base::in);
+		println("There are {} words in the file.", wordcount(infile));
+	
+		println();
+	}
+
 }
