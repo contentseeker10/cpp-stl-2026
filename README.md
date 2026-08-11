@@ -41,3 +41,4 @@ Practical projects from book **"C++ STL Cookbook Second Edition" by Bill Weinman
     - Use *ranges* for more powerful algorithms
     - Generate *permutations* of data sequences
     - *Merge* sorted containers
+5. **Strings and Formatting**
