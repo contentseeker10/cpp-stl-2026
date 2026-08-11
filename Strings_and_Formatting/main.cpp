@@ -106,6 +106,15 @@ string concat_format() {
 	return "error";
 }
 
+string trimstr(const string& s) {
+	constexpr const char* whitespace{ " \t\r\n\v\f" };
+	if (s.empty()) return s;
+	const auto first = s.find_first_not_of(whitespace);
+	if (first == string::npos) return {};
+	const auto last = s.find_last_not_of(whitespace);
+	return s.substr(first, (last - first + 1));
+}
+
 int main() {
 	{
 		println("\n--- Use string_view as a lightweight string object ---\n");
@@ -161,7 +170,7 @@ int main() {
 	}
 
 	{
-		println("\n--- Concatenate strings ---\n");
+		println("\n--- Concatenate strings and test efficiency ---\n");
 	
 		string a{ "a" };
 		string b{ "b" };
@@ -187,6 +196,18 @@ int main() {
 		timer(concat_ostringstream);
 		timer(concat_format);
 		
+	
+		println();
+	}
+
+	{
+		println("\n--- Trim whitespace from strings ---\n");
+	
+		string s{ " \t  ten-thumbed input   \t   \n \t " };
+		println("[{}]", s);
+
+		s = trimstr(s);
+		println("[{}]", s);
 	
 		println();
 	}
