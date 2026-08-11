@@ -162,6 +162,40 @@ string make_commas(const uint64_t num) {
 	return s;
 }
 
+constexpr char char_lower(const char& c) {
+	if (c >= 'A' && c <= 'Z') return c + ('a' - 'A');
+	else return c;
+}
+
+class ci_traits : public std::char_traits<char> {
+public:
+	static constexpr bool lt(char_type a, char_type b) noexcept {
+		return char_lower(a) < char_lower(b);
+	}
+	static constexpr bool eq(char_type a, char_type b) noexcept {
+		return char_lower(a) == char_lower(b);
+	}
+	static constexpr int compare(const char_type* s1, const char_type* s2, size_t count) {
+		for (size_t i{0}; i < count; ++i)
+		{
+			auto diff = char_lower(s1[i]) <=> char_lower(s2[i]);
+			if (diff > 0) return 1;
+			if (diff < 0) return -1;
+		}
+		return 0;
+	}
+	static constexpr const char_type* find(const char_type* p, size_t count, const char_type& ch) {
+		const char_type find_c{ char_lower(ch) };
+		for (size_t i{0}; i < count; ++i)
+		{
+			if (find_c == char_lower(p[i])) return p + i;
+		}
+		return nullptr;
+	}
+};
+
+using ci_string = std::basic_string<char, ci_traits>;
+
 int main() {
 	{
 		println("\n--- Use string_view as a lightweight string object ---\n");
@@ -319,6 +353,22 @@ int main() {
 		for (const auto& [name, pop, lat, lon] : cities)
 		{
 			println("{:.<15} pop {:.10} coords {}, {}", name, make_commas(pop), lat, lon);
+		}
+
+		println();
+	}
+
+	{
+		println("\n--- Customize a string class with char_traits ---\n");
+
+		ci_string cmp1{ "CoMpArE StRiNg" };
+		ci_string cmp2{ "compare string" };
+
+		if (cmp1 == cmp2) {
+			println("Match! {} == {}", cmp1, cmp2);
+		}
+		else {
+			println("no match {} != {}", cmp1, cmp2);
 		}
 
 		println();
