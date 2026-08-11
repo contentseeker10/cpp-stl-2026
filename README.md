@@ -42,3 +42,12 @@ Practical projects from book **"C++ STL Cookbook Second Edition" by Bill Weinman
     - Generate *permutations* of data sequences
     - *Merge* sorted containers
 5. **Strings and Formatting**
+    - Use *string_view* as a lightweight string object
+    - Format text with the *format* library
+    - *Concatenate* strings and test efficiency
+    - Trim whitespace from strings
+    - Read strings from *user input*
+    - Count words in a file
+    - Initialize complex structures from *file input*
+    - Customize a string class with *char_traits*
+    - Parse strings with *regular expressions*

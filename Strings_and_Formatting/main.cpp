@@ -16,6 +16,7 @@
 #include <numbers>
 
 #include <chrono>
+#include <regex>
 
 #include <vector>
 
@@ -196,6 +197,17 @@ public:
 
 using ci_string = std::basic_string<char, ci_traits>;
 
+template <typename It>
+void get_links(It it) {
+	for (It end_it{}; it!= end_it; )
+	{
+		const string link{ *it++ };
+		if (it == end_it) break;
+		const string desc{ *it++ };
+		println("{:.<24} {}", desc, link);
+	}
+}
+
 int main() {
 	{
 		println("\n--- Use string_view as a lightweight string object ---\n");
@@ -370,6 +382,27 @@ int main() {
 		else {
 			println("no match {} != {}", cmp1, cmp2);
 		}
+
+		println();
+	}
+
+	{
+		println("\n--- Parse strings with regular expressions ---\n");
+
+		const char* fn{ "test-web-page.html" };
+
+		const std::regex link_re{ "<a href=\"([^\"]*)\"[^<]*>([^<]*)</a>" };
+
+		string in{};
+		std::ifstream infile(fn, std::ios_base::in);
+		for (string line{}; getline(infile,  line);)
+		{
+			in += line;
+		}
+
+		std::sregex_token_iterator it{ in.begin(), in.end(), link_re, { 1, 2 } };
+
+		get_links(it);
 
 		println();
 	}
