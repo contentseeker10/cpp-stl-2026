@@ -29,6 +29,7 @@ using std::vector;
 using std::tuple;
 
 using std::unique_ptr, std::make_unique;
+using std::shared_ptr, std::make_shared;
 
 using std::chrono::system_clock;
 using std::chrono::steady_clock;
@@ -164,6 +165,11 @@ private:
 
 void process_thing(const unique_ptr<Thing>& p) {
 	if (p) println("processing: {}", p->name());
+	else println("invalid pointer");
+}
+
+void check_thing_ptr(const shared_ptr<Thing>& p) {
+	if (p) println("{} use count: {}", p->name(), p.use_count());
 	else println("invalid pointer");
 }
 
@@ -353,6 +359,30 @@ int main() {
 
 		p2.reset(new Thing("new thing"));
 		process_thing(p2);
+
+		println("\nend of scope");
+		
+		println();
+	}
+
+	{
+		println("\n--- Share objects with std::shared_ptr ---\n");
+		
+		shared_ptr<Thing> p1{ new Thing("Thing 1") };
+		auto p2 = make_shared<Thing>("Thing 2");
+
+		check_thing_ptr(p1);
+		check_thing_ptr(p2);
+
+		println("\nmake 4 copies of p1:");
+		auto pa = p1;
+		auto pb = p1;
+		{
+			auto pc = p1;
+			auto pd = p1;
+			check_thing_ptr(p1);
+		}
+		check_thing_ptr(pa);
 
 		println("\nend of scope");
 		
