@@ -11,6 +11,7 @@
 #include <variant>
 
 #include <chrono>
+#include <memory>
 
 #include <string>
 
@@ -26,6 +27,8 @@ using std::list;
 using std::vector;
 
 using std::tuple;
+
+using std::unique_ptr, std::make_unique;
 
 using std::chrono::system_clock;
 using std::chrono::steady_clock;
@@ -139,6 +142,29 @@ constexpr int sum_t(const tuple<T...>& tup) {
 	return std::apply([](const auto&... elems) {
 		return (elems + ...);
 	}, tup);
+}
+
+class Thing {
+public:
+	Thing() {
+		println("default ctor: {}", _thname);
+	}
+	Thing(const string_view& n) : _thname(n) {
+		println("param ctor: {}", _thname);
+	}
+	~Thing() {
+		println("dtor: {}", _thname);
+	}
+	string_view name() const {
+		return _thname;
+	}
+private:
+	string_view _thname{ "unk" };
+};
+
+void process_thing(const unique_ptr<Thing>& p) {
+	if (p) println("processing: {}", p->name());
+	else println("invalid pointer");
 }
 
 //{
@@ -302,6 +328,34 @@ int main() {
 		println("sum of ti2: {}", sum2);
 		println("sum of ti3: {}", sum3);
 
+		println();
+	}
+
+	{
+		println("\n--- Manage allocated memory with std::unique_ptr ---\n");
+		
+		unique_ptr<Thing> p1{ new Thing };
+
+		auto p2 = make_unique<Thing>();
+
+		auto p3 = make_unique<Thing>("Thing 3");
+
+		process_thing(p3);
+		process_thing(make_unique<Thing>("Thing 4"));
+
+		auto p4 = std::move(p3);
+
+		process_thing(p3);
+		process_thing(p4);
+
+		p1.reset();
+		process_thing(p1);
+
+		p2.reset(new Thing("new thing"));
+		process_thing(p2);
+
+		println("\nend of scope");
+		
 		println();
 	}
 }
