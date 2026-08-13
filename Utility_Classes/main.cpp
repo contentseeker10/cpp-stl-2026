@@ -25,6 +25,8 @@ using std::string, std::string_view;
 using std::list;
 using std::vector;
 
+using std::tuple;
+
 using std::chrono::system_clock;
 using std::chrono::steady_clock;
 using std::chrono::high_resolution_clock;
@@ -122,6 +124,21 @@ seconds timer(uint64_t(*f)()) {
 	seconds secs{ t2 - t1 };
 	println("there are {} primes in range", count);
 	return secs;
+}
+
+template <typename... T>
+void print_t(const std::tuple<T...>& tup) {
+	std::apply([](const auto&... elems) {
+		((print("{} ", elems)), ...);
+	}, tup);
+	println();
+}
+
+template <typename... T>
+constexpr int sum_t(const tuple<T...>& tup) {
+	return std::apply([](const auto&... elems) {
+		return (elems + ...);
+	}, tup);
 }
 
 //{
@@ -258,6 +275,32 @@ int main() {
 		println("time elapsed: {:.3f} ms", milliseconds(secs).count());
 		println("time elapsed: {:.3e} mcs", microseconds(secs).count());
 		println("time elapsed: {} frames at 24 fps", floor<fps24>(secs).count()); 
+
+		println();
+	}
+
+	{
+		println("\n--- Use fold expressions for generic tuples ---\n");
+		
+		tuple labels{ "ID", "Name", "Scale" };
+		tuple employee{ 123456, "John Doe", 3.7 };
+		tuple nums{ 1, 7, "forty-two", 47, 73L, -111.11 };
+
+		print_t(labels);
+		print_t(employee);
+		print_t(nums);
+
+		tuple ti1{ 1, 2, 3, 4, 5 };
+		tuple ti2{ 9, 10, 11, 12, 13, 14, 15 };
+		tuple ti3{ 47, 73, 42 };
+
+		auto sum1{ sum_t(ti1) };
+		auto sum2{ sum_t(ti2) };
+		auto sum3{ sum_t(ti3) };
+
+		println("sum of ti1: {}", sum1);
+		println("sum of ti2: {}", sum2);
+		println("sum of ti3: {}", sum3);
 
 		println();
 	}
