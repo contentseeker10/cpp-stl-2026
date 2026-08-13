@@ -8,6 +8,7 @@
 #include <print>
 #include <optional>
 #include <any>
+#include <variant>
 
 #include <string>
 
@@ -17,7 +18,7 @@
 using std::print, std::println;
 using std::optional, std::any;
 
-using std::string;
+using std::string, std::string_view;
 
 using std::list;
 using std::vector;
@@ -41,6 +42,45 @@ void p_any(const any& a) {
 		println("someting else: {}", a.type().name());
 	}
 }
+
+class Animal {
+public:
+	Animal(string_view n, string_view s) : _name{n}, _sound{s} {}
+	void speak() const {
+		println("{} says {}", _name, _sound);
+	}
+	void sound(string_view s) {
+		_sound = s;
+	}
+private:
+	string_view _name;
+	string_view _sound;
+	Animal();
+};
+
+class Cat : public Animal {
+public:
+	Cat(string_view n) : Animal(n, "meow") {};
+};
+
+class Dog : public Animal {
+public:
+	Dog(string_view n) : Animal(n, "arf!") {};
+};
+
+class Wookie : public Animal {
+public:
+	Wookie(string_view n) : Animal(n, "grraargghh!") {};
+};
+
+
+using v_animal = std::variant<Cat, Dog, Wookie>;
+
+struct animal_speaks {
+	void operator()(const Dog& d) const { d.speak(); }
+	void operator()(const Cat& c) const { c.speak(); }
+	void operator()(const Wookie& w) const { w.speak(); }
+};
 
 //{
 	//println("\n---  ---\n");
@@ -112,6 +152,55 @@ int main() {
 		catch (std::bad_any_cast& e) {
 			println("any: {}", e.what());
 		}
+
+		println();
+	}
+
+	{
+		println("\n--- Store different types with std::variant ---\n");
+		
+		list<v_animal> pets{
+			Cat{"Hobbes"}, Dog{"Fido"}, Cat{"Max"}, Wookie{"Chewie"}
+		};
+
+		for (const v_animal& a : pets) {
+			std::visit(animal_speaks{}, a);
+		}
+
+		println();
+		
+		for (const v_animal& a : pets) {
+			auto idx{ a.index() };
+			if (idx == 0) std::get<Cat>(a).speak();
+			if (idx == 1) std::get<Dog>(a).speak();
+			if (idx == 2) std::get<Wookie>(a).speak();
+		}
+
+		println();
+
+		for (const v_animal& a : pets) {
+			if (const auto c{ std::get_if<Cat>(&a) }; c) {
+				c->speak();
+			}
+			else if (const auto d{ std::get_if<Dog>(&a) }; d) {
+				d->speak();
+			}
+			else if (const auto w{ std::get_if<Wookie>(&a) }; w) {
+				w->speak();
+			}
+		}
+
+		println();
+
+		size_t n_cats{}, n_dogs{}, n_wookies{};
+
+		for (const v_animal& a : pets) {
+			if (std::holds_alternative<Cat>(a)) ++n_cats;
+			if (std::holds_alternative<Dog>(a)) ++n_dogs;
+			if (std::holds_alternative<Wookie>(a)) ++n_wookies;
+		}
+
+		println("there are {} cats, {} dogs and {} wookies", n_cats, n_dogs, n_wookies);
 
 		println();
 	}
