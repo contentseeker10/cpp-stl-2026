@@ -195,6 +195,24 @@ struct circB {
 	~circB() { println("dtor B"); }
 };
 
+struct Creature {
+	string name {};
+	string sound {};
+	Creature(const string& n, const string& s) : name { n }, sound { s } {
+		println("ctor: {}", name);
+	}
+	~Creature() {
+		println("dtor: {}", name);
+	}
+};
+
+auto make_creature(const string& n, const string& s) {
+	auto ap = make_shared<Creature>(n, s);
+	auto np = shared_ptr<string>(ap, &ap->name);
+	auto sp = shared_ptr<string>(ap, &ap->sound);
+	return tuple(np, sp);
+}
+
 //{
 	//println("\n---  ---\n");
 	//
@@ -438,6 +456,16 @@ int main() {
 		b->p = a;
 
 		println("\nend of scope");
+		
+		println();
+	}
+
+	{
+		println("\n--- Share object members with aliased smart pointers ---\n");
+		
+		auto [name, sound] = make_creature("Velociraptor", "Grrr!");
+		println("The {} says {}", *name, *sound);
+		println("Use count: name {}, sound {}", name.use_count(), sound.use_count());
 		
 		println();
 	}
