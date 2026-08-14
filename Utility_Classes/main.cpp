@@ -12,11 +12,13 @@
 
 #include <chrono>
 #include <memory>
+#include <random>
 
 #include <string>
 
 #include <list>
 #include <vector>
+#include <map>
 
 using std::print, std::println;
 using std::optional, std::any;
@@ -25,6 +27,7 @@ using std::string, std::string_view;
 
 using std::list;
 using std::vector;
+using std::map;
 
 using std::tuple;
 
@@ -211,6 +214,52 @@ auto make_creature(const string& n, const string& s) {
 	auto np = shared_ptr<string>(ap, &ap->name);
 	auto sp = shared_ptr<string>(ap, &ap->sound);
 	return tuple(np, sp);
+}
+
+constexpr size_t n_samples { 10 * 1'000 };
+constexpr size_t n_partions { 10 };
+constexpr size_t n_max { 50 };
+
+template <typename RNG>
+void histogram(const string_view& rng_name) {
+	auto p_ratio = (double)RNG::max() / n_partions;
+
+	RNG rng {};
+	vector<size_t> v(n_partions);
+	for (size_t i {}; i < n_samples; ++i) {
+		++v[(size_t)(rng() / p_ratio)];
+	}
+
+	auto max_el = std::max_element(v.begin(), v.end());
+	auto v_ratio = *max_el / n_max;
+	if (v_ratio < 1) v_ratio = 1;
+
+	println("engine: {}", rng_name);
+	for (size_t i {}; i < n_partions; ++i) {
+		println("{:02}:{:*<{}}", i + 1, ' ', v[i] / v_ratio);
+	}
+	println();
+}
+
+void dist_histogram(auto distro, const string_view& dist_name) {
+	std::default_random_engine rng {};
+	map<long, size_t> m;
+
+	for (size_t i {}; i < n_samples; ++i) {
+		++m[(long)distro(rng)];
+	}
+
+	auto max_elm_it = std::max_element(m.begin(), m.end(), [](const auto& a, const auto& b) {
+		return a.second < b.second;
+	});
+	size_t max_elm = max_elm_it->second;
+	size_t max_div = std::max(max_elm / n_max, size_t(1));
+
+	println("{}:", dist_name);
+	for (const auto [randval, count] : m) {
+		if (count < max_elm / n_max) continue;
+		println("{:3}:{:*<{}}", randval, ' ', count / max_div);
+	}
 }
 
 //{
@@ -467,6 +516,34 @@ int main() {
 		println("The {} says {}", *name, *sound);
 		println("Use count: name {}, sound {}", name.use_count(), sound.use_count());
 		
+		println();
+	}
+
+	{
+		println("\n--- Compare random number engines ---\n");
+		
+		histogram<std::random_device>("random_device");
+		histogram<std::default_random_engine>("default_random_engine");
+		histogram<std::minstd_rand0>("minstd_rand0");
+		histogram<std::minstd_rand>("minstd_rand");
+		histogram<std::mt19937>("mt19937");
+		histogram<std::mt19937_64>("mt19937_64");
+		histogram<std::ranlux24_base>("ranlux24_base");
+		histogram<std::ranlux48_base>("ranlux48_base");
+		histogram<std::ranlux24>("ranlux24");
+		histogram<std::ranlux48>("ranlux48");
+		histogram<std::knuth_b>("knuth_b");
+		
+		println();
+	}
+
+	{
+		println("\n--- Comparison of random number distribution generators ---\n");
+
+		dist_histogram(std::uniform_int_distribution<int> { 0, 9 }, "uniform_int_distribution");
+		dist_histogram(std::normal_distribution<double> { 0.0, 2.0 }, "normal_distribution");
+		dist_histogram(std::bernoulli_distribution {}, "bernoulli_distribution");
+
 		println();
 	}
 }
