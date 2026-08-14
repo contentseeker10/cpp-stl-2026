@@ -51,3 +51,14 @@ Practical projects from book **"C++ STL Cookbook Second Edition" by Bill Weinman
     - Initialize complex structures from *file input*
     - Customize a string class with *char_traits*
     - Parse strings with *regular expressions*
+6. **Utility Classes**
+    - Manage optional values with *std::optional*
+    - Use *std::any* for type safety
+    - Store different types with *std::variant*
+    - Time events with *std::chrono*
+    - Use *fold expressions* for generic tuple
+    - Manage allocated memory with *std::unique_ptr*
+    - Share objects with *std::shared_ptr*
+    - Use *std::weak_ptr* with shared objects
+    - Share object members with *aliased smart pointers*
+    - Compare *random number generators* and *random number distribution generators*
