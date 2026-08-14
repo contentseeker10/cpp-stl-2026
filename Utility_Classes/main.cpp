@@ -30,6 +30,7 @@ using std::tuple;
 
 using std::unique_ptr, std::make_unique;
 using std::shared_ptr, std::make_shared;
+using std::weak_ptr;
 
 using std::chrono::system_clock;
 using std::chrono::steady_clock;
@@ -172,6 +173,27 @@ void check_thing_ptr(const shared_ptr<Thing>& p) {
 	if (p) println("{} use count: {}", p->name(), p.use_count());
 	else println("invalid pointer");
 }
+
+void get_weak_thing(const weak_ptr<Thing>& p) {
+	if (auto sp = p.lock()) {
+		println("{}: count {}", sp->name(), p.use_count());
+	}
+	else {
+		println("no shared object");
+	}
+}
+
+struct circB;
+struct circA {
+	shared_ptr<circB> p;
+	circA() { println("ctor A"); }
+	~circA() { println("dtor A"); }
+};
+struct circB {
+	weak_ptr<circA> p;
+	circB() { println("ctor B"); }
+	~circB() { println("dtor B"); }
+};
 
 //{
 	//println("\n---  ---\n");
@@ -383,6 +405,37 @@ int main() {
 			check_thing_ptr(p1);
 		}
 		check_thing_ptr(pa);
+
+		println("\nend of scope");
+		
+		println();
+	}
+
+	{
+		println("\n--- Use std::weak_ptr with shared objects ---\n");
+		
+		auto thing1 = make_shared<Thing>("Thing 1");
+		weak_ptr<Thing> wp1;
+
+		println("expired: {}", wp1.expired());
+
+		get_weak_thing(wp1);
+
+		wp1 = thing1;
+		get_weak_thing(wp1);
+
+		weak_ptr<Thing> wp2(thing1);
+		get_weak_thing(wp2);
+
+		thing1.reset();
+		get_weak_thing(wp1);
+		get_weak_thing(wp2);
+
+		auto a{ make_shared<circA>() };
+		auto b{ make_shared<circB>() };
+
+		a->p = b;
+		b->p = a;
 
 		println("\nend of scope");
 		
