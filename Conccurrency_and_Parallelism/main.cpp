@@ -8,14 +8,19 @@
 #include <print>
 
 #include <list>
+#include <vector>
 
 #include <chrono>
+#include <random>
+#include <algorithm>
+
 #include <thread>
 #include <future>
+#include <execution>
 
 using std::print, std::println;
 
-using std::list;
+using std::list, std::vector;
 
 using std::chrono::steady_clock;
 using std::chrono::duration;
@@ -25,6 +30,8 @@ using namespace std::chrono_literals;
 
 using std::thread;
 using std::async;
+
+namespace execution = std::execution;
 
 void sleepms(const unsigned ms) {
 	using std::chrono::milliseconds;
@@ -108,36 +115,82 @@ int main() {
 	//std::jthread t2(fthread, 2);
 
 
-	println("\n--- Use std::async for concurrency ---\n");
+	//println("\n--- Use std::async for concurrency ---\n");
+	//
+	//constexpr uint64_t max_prime { 0x4FFFFF };
+	//constexpr size_t num_threads { 14 };
+	//list<std::future<prime_time>> swarm;
+	//
+	//println("start parallel primes");
+	//auto t1 = steady_clock::now();
+	//for (size_t i {}; i < num_threads; ++i) {
+	//	swarm.emplace_back(
+	//		async(launch::async, count_primes, max_prime)
+	//	);
+	//}
+	//
+	//for (auto& f : swarm) {
+	//	static size_t i {};
+	//	auto pt = f.get();
+	//	println("primes({:02}): {} {:.5}", ++i, pt.count, pt.dur);
+	//}
+	//
+	//secs dur_total { steady_clock::now() - t1 };
+	//println("total duration: {:.5}s", dur_total.count());
+	//
+	//
+	//// async unwrapped
+	//std::promise<int> value_promise;
+	//std::future<int> value_future = value_promise.get_future();
+	//thread thr1(f, std::move(value_promise));
+	//thr1.detach();
+	//println("value is: {}", value_future.get());
 
-	constexpr uint64_t max_prime { 0x4FFFFF };
-	constexpr size_t num_threads { 14 };
-	list<std::future<prime_time>> swarm;
 
-	println("start parallel primes");
+	println("\n--- Run STL algorithms in parallel with execution policies ---\n");
+
+	using dur_t = duration<double>;
+
+	vector<unsigned> v(20'000'000);
+	std::random_device rng;
+	println("generate randoms");
+	for (auto& i : v) i = rng() % 0xFFFF'FFFF;
+
+	auto mul2 = [](int n) { return n * 2; };
+	
+	auto t0 = steady_clock::now();
+	std::transform(v.begin(), v.end(), v.begin(), mul2);
+	dur_t dur0 = steady_clock::now() - t0;
+
 	auto t1 = steady_clock::now();
-	for (size_t i {}; i < num_threads; ++i) {
-		swarm.emplace_back(
-			async(launch::async, count_primes, max_prime)
-		);
-	}
+	std::transform(execution::seq, v.begin(), v.end(), v.begin(), mul2);
+	dur_t dur1 = steady_clock::now() - t1;
+	
+	auto t2 = steady_clock::now();
+	std::transform(execution::par, v.begin(), v.end(), v.begin(), mul2);
+	dur_t dur2 = steady_clock::now() - t2;
+	
+	auto t3 = steady_clock::now();
+	std::transform(execution::par_unseq, v.begin(), v.end(), v.begin(), mul2);
+	dur_t dur3 = steady_clock::now() - t3;
+	
+	println("no policy: {:.3}s", dur0.count());
+	println("execution::seq: {:.3}s", dur1.count());
+	println("execution::par: {:.3}s", dur2.count());
+	println("execution::par_unseq: {:.3}s", dur3.count());
 
-	for (auto& f : swarm) {
-		static size_t i {};
-		auto pt = f.get();
-		println("primes({:02}): {} {:.5}", ++i, pt.count, pt.dur);
-	}
+	println("\nsort");
 
-	secs dur_total { steady_clock::now() - t1 };
-	println("total duration: {:.5}s", dur_total.count());
+	//auto ts0 = steady_clock::now();
+	//std::sort(v.begin(), v.end());
+	//dur_t durs0 = steady_clock::now() - t0;
 
+	auto ts2 = steady_clock::now();
+	std::sort(execution::par, v.begin(), v.end());
+	dur_t durs2 = steady_clock::now() - t2;
 
-	// async unwrapped
-	std::promise<int> value_promise;
-	std::future<int> value_future = value_promise.get_future();
-	thread thr1(f, std::move(value_promise));
-	thr1.detach();
-	println("value is: {}", value_future.get());
+	//println("no policy: {:.3}s", durs0.count()); // 6.88s
+	println("execution::par: {:.3}s", durs2.count()); // 1.1s
 
 
 	println("\nend of main()");	
