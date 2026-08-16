@@ -62,3 +62,4 @@ Practical projects from book **"C++ STL Cookbook Second Edition" by Bill Weinman
     - Use *std::weak_ptr* with shared objects
     - Share object members with *aliased smart pointers*
     - Compare *random number generators* and *random number distribution generators*
+7. **Concurrency and Parallelism**

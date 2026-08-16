@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="Conccurrency_and_Parallelism.vcxproj" Id="b802c38a-2b4b-4047-896c-50be60d36080" />
+</Solution>
