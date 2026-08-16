@@ -6,6 +6,7 @@
 */
 
 #include <print>
+#include <string>
 
 #include <list>
 #include <vector>
@@ -13,17 +14,25 @@
 #include <chrono>
 #include <random>
 #include <algorithm>
+#include <optional>
+#include <memory>
 
 #include <thread>
 #include <future>
 #include <execution>
+#include <mutex>
 
 using std::print, std::println;
+using std::string, std::string_view;
 
 using std::list, std::vector;
 
 using std::chrono::steady_clock;
 using std::chrono::duration;
+
+using std::optional;
+
+using std::make_unique;
 
 using namespace std::this_thread;
 using namespace std::chrono_literals;
@@ -80,6 +89,80 @@ void f(std::promise<int> value) {
 	println("\nthis is f()");
 	value.set_value(47);
 }
+
+std::mutex animal_mutex {};
+
+class Animal {
+	using friend_t = list<Animal>;
+	string_view s_name { "unk" };
+	friend_t l_friends {};
+public:
+	Animal() = delete;
+	Animal(const string_view n) : s_name { n } {};
+	
+	bool operator==(const Animal& o) const {
+		return s_name.data() == o.s_name.data();
+	}
+
+	bool is_friend(const Animal& o) const {
+		for (const auto& a : l_friends) {
+			if (a == o) return true;
+		}
+		return false;
+	}
+
+	optional<friend_t::iterator> find_friend(const Animal& o) noexcept {
+		for (auto it { l_friends.begin() }; it != l_friends.end(); ++it) {
+			if (*it == o) return it;
+		}
+		return {};
+	}
+
+	void display() const noexcept {
+		std::lock_guard<std::mutex> l(animal_mutex);
+		//animal_mutex.lock();
+		auto n_animals { l_friends.size() };
+		println("Animal: {}, friends: ", s_name);
+		if (!n_animals) println("none");
+		else {
+			for (const auto& n : l_friends) {
+				println("{}", n.s_name);
+			}
+		}
+		println();
+		//animal_mutex.unlock();
+	}
+
+	bool add_friend(Animal& o) noexcept {
+		println("add friend {} -> {}", s_name, o.s_name);
+		if (*this == o) return false;
+		std::lock_guard<std::mutex> l(animal_mutex);
+		//animal_mutex.lock();
+		if (!is_friend(o)) {
+			l_friends.emplace_back(o);
+		}
+		if (!o.is_friend(*this)) {
+			o.l_friends.emplace_back(*this);
+		}
+		//animal_mutex.unlock();
+		return true;
+	}
+
+	bool delete_friend(Animal& o) noexcept {
+		println("delete friend {} -> {}", s_name, o.s_name);
+		if (*this == o) return false;
+		std::lock_guard<std::mutex> l(animal_mutex);
+		//animal_mutex.lock();
+		if (auto it = find_friend(o)) {
+			l_friends.erase(it.value());
+		}
+		if (auto it = o.find_friend(*this)) {
+			o.l_friends.erase(it.value());
+		}
+		//animal_mutex.unlock();
+		return true;
+	}
+};
 
 int main() {
 	//{
@@ -147,50 +230,86 @@ int main() {
 	//println("value is: {}", value_future.get());
 
 
-	println("\n--- Run STL algorithms in parallel with execution policies ---\n");
+	//println("\n--- Run STL algorithms in parallel with execution policies ---\n");
+	//
+	//using dur_t = duration<double>;
+	//
+	//vector<unsigned> v(20'000'000);
+	//std::random_device rng;
+	//println("generate randoms");
+	//for (auto& i : v) i = rng() % 0xFFFF'FFFF;
+	//
+	//auto mul2 = [](int n) { return n * 2; };
+	//
+	//auto t0 = steady_clock::now();
+	//std::transform(v.begin(), v.end(), v.begin(), mul2);
+	//dur_t dur0 = steady_clock::now() - t0;
+	//
+	//auto t1 = steady_clock::now();
+	//std::transform(execution::seq, v.begin(), v.end(), v.begin(), mul2);
+	//dur_t dur1 = steady_clock::now() - t1;
+	//
+	//auto t2 = steady_clock::now();
+	//std::transform(execution::par, v.begin(), v.end(), v.begin(), mul2);
+	//dur_t dur2 = steady_clock::now() - t2;
+	//
+	//auto t3 = steady_clock::now();
+	//std::transform(execution::par_unseq, v.begin(), v.end(), v.begin(), mul2);
+	//dur_t dur3 = steady_clock::now() - t3;
+	//
+	//println("no policy: {:.3}s", dur0.count());
+	//println("execution::seq: {:.3}s", dur1.count());
+	//println("execution::par: {:.3}s", dur2.count());
+	//println("execution::par_unseq: {:.3}s", dur3.count());
+	//
+	//println("\nsort");
+	//
+	////auto ts0 = steady_clock::now();
+	////std::sort(v.begin(), v.end());
+	////dur_t durs0 = steady_clock::now() - t0;
+	//
+	//auto ts2 = steady_clock::now();
+	//std::sort(execution::par, v.begin(), v.end());
+	//dur_t durs2 = steady_clock::now() - t2;
+	//
+	////println("no policy: {:.3}s", durs0.count()); // 6.88s
+	//println("execution::par: {:.3}s", durs2.count()); // 1.1s
 
-	using dur_t = duration<double>;
 
-	vector<unsigned> v(20'000'000);
-	std::random_device rng;
-	println("generate randoms");
-	for (auto& i : v) i = rng() % 0xFFFF'FFFF;
+	println("\n--- Use mutex and lock to safely share data ---\n");
 
-	auto mul2 = [](int n) { return n * 2; };
-	
-	auto t0 = steady_clock::now();
-	std::transform(v.begin(), v.end(), v.begin(), mul2);
-	dur_t dur0 = steady_clock::now() - t0;
+	auto cat1 = make_unique<Animal>("Felix");
+	auto tiger1 = make_unique<Animal>("Hobbes");
+	auto dog1 = make_unique<Animal>("Astro");
+	auto rabbit1 = make_unique<Animal>("Bugs");
 
-	auto t1 = steady_clock::now();
-	std::transform(execution::seq, v.begin(), v.end(), v.begin(), mul2);
-	dur_t dur1 = steady_clock::now() - t1;
-	
-	auto t2 = steady_clock::now();
-	std::transform(execution::par, v.begin(), v.end(), v.begin(), mul2);
-	dur_t dur2 = steady_clock::now() - t2;
-	
-	auto t3 = steady_clock::now();
-	std::transform(execution::par_unseq, v.begin(), v.end(), v.begin(), mul2);
-	dur_t dur3 = steady_clock::now() - t3;
-	
-	println("no policy: {:.3}s", dur0.count());
-	println("execution::seq: {:.3}s", dur1.count());
-	println("execution::par: {:.3}s", dur2.count());
-	println("execution::par_unseq: {:.3}s", dur3.count());
+	auto a1 = async([&] { cat1->add_friend(*tiger1); });
+	auto a2 = async([&] { cat1->add_friend(*rabbit1); });
+	auto a3 = async([&] { rabbit1->add_friend(*dog1); });
+	auto a4 = async([&] { rabbit1->add_friend(*cat1); });
 
-	println("\nsort");
+	a1.wait();
+	a2.wait();
+	a3.wait();
+	a4.wait();
 
-	//auto ts0 = steady_clock::now();
-	//std::sort(v.begin(), v.end());
-	//dur_t durs0 = steady_clock::now() - t0;
+	auto p1 = async([&] { cat1->display(); });
+	auto p2 = async([&] { tiger1->display(); });
+	auto p3 = async([&] { dog1->display(); });
+	auto p4 = async([&] { rabbit1->display(); });
 
-	auto ts2 = steady_clock::now();
-	std::sort(execution::par, v.begin(), v.end());
-	dur_t durs2 = steady_clock::now() - t2;
+	p1.wait();
+	p2.wait();
+	p3.wait();
+	p4.wait();
 
-	//println("no policy: {:.3}s", durs0.count()); // 6.88s
-	println("execution::par: {:.3}s", durs2.count()); // 1.1s
+	auto a5 = async([&] { cat1->delete_friend(*rabbit1); });
+	a5.wait();
+
+	auto p5 = async([&] { cat1->display(); });
+	auto p6 = async([&] { rabbit1->display(); });
+
+
 
 
 	println("\nend of main()");	
