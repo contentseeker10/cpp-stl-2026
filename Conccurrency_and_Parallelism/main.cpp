@@ -23,6 +23,7 @@
 #include <execution>
 #include <mutex>
 #include <atomic>
+#include <coroutine>
 
 using std::print, std::println;
 using std::string, std::string_view;
@@ -273,6 +274,73 @@ void consumer_new(const size_t id) {
 }
 
 
+class task {
+public:
+	class promise_type;
+	using co_h = std::coroutine_handle<promise_type>;
+	co_h handle;
+
+	class promise_type {
+	public:
+		task get_return_object() {
+			return task { co_h::from_promise(*this) };
+		}
+
+		std::suspend_always initial_suspend() noexcept { return {}; }
+		std::suspend_always final_suspend() noexcept { return {}; }
+		void return_void() noexcept {}
+		void unhandled_exception() { std::terminate(); }
+	};
+
+	explicit task(co_h h) : handle(h) {}
+
+	task(task&& other) noexcept : handle(other.handle) { other.handle = {}; }
+	task(const task&) = delete;
+	task& operator=(const task&) = delete;
+	task& operator=(task&&) = delete;
+
+	~task() {
+		if (handle) handle.destroy();
+	}
+};
+
+class scheduler {
+	deque<std::coroutine_handle<>> ready;
+
+public:
+	void schedule(std::coroutine_handle<> h) {
+		ready.push_back(h);
+	}
+
+	void run() {
+		while (!ready.empty()) {
+			auto h = ready.front();
+			ready.pop_front();
+			h.resume();
+		}
+	}
+};
+
+class yield {
+	scheduler& y_sched;
+public:
+	explicit yield(scheduler& s) noexcept : y_sched(s) {}
+	bool await_ready() const noexcept { return false; }
+	void await_resume() const noexcept {}
+
+	void await_suspend(std::coroutine_handle<> h) const noexcept {
+		y_sched.schedule(h);
+	}
+};
+
+task worker(scheduler& sched, int id) {
+	for (int i{}; i < 3; ++i) {
+		println("worker {} step {}", id, i);
+		co_await ::yield { sched };
+	}
+}
+
+
 int main() {
 	//{
 	//	println("\n--- Sleep a process for a specific amount of time ---\n");
@@ -447,25 +515,40 @@ int main() {
 	//jthread t2 { consumer };
 
 
-	println("\n--- Implement multiple producers and consumers ---\n");
+	//println("\n--- Implement multiple producers and consumers ---\n");
+	//
+	//list<std::future<void>> producers;
+	//list<std::future<void>> consumers;
+	//
+	//for (size_t i {}; i < num_producers; ++i) {
+	//	producers.emplace_back(async(producer_new, i));
+	//}
+	//
+	//for (size_t i {}; i < num_consumers; ++i) {
+	//	consumers.emplace_back(async(consumer_new, i));
+	//}
+	//
+	//for (auto& f : producers) f.wait();
+	//production_complete = true;
+	//println("producers done.");
+	//
+	//for (auto& f : consumers) f.wait();
+	//println("consumers done.");
 
-	list<std::future<void>> producers;
-	list<std::future<void>> consumers;
 
-	for (size_t i {}; i < num_producers; ++i) {
-		producers.emplace_back(async(producer_new, i));
-	}
+	println("\n--- Suspend and resume execution with coroutines ---\n");
 
-	for (size_t i {}; i < num_consumers; ++i) {
-		consumers.emplace_back(async(consumer_new, i));
-	}
+	scheduler sched {};
 
-	for (auto& f : producers) f.wait();
-	production_complete = true;
-	println("producers done.");
+	auto t1 = worker(sched, 1);
+	auto t2 = worker(sched, 2);
+	auto t3 = worker(sched, 3);
 
-	for (auto& f : consumers) f.wait();
-	println("consumers done.");
+	sched.schedule(t1.handle);
+	sched.schedule(t2.handle);
+	sched.schedule(t3.handle);
+
+	sched.run();
 
 
 	println("\nend of main()");	
