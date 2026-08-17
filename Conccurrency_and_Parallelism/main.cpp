@@ -38,7 +38,7 @@ using std::make_unique;
 using namespace std::this_thread;
 using namespace std::chrono_literals;
 
-using std::thread;
+using std::thread, std::jthread;
 using std::async;
 
 namespace execution = std::execution;
@@ -171,7 +171,7 @@ std::atomic<uint64_t> g_count {};
 std::atomic_flag winner {};
 
 constexpr int max_count { 1'000 };
-constexpr int max_threads { 100 };
+//constexpr int max_threads { 100 };
 
 void countem(int id) {
 	while (!ready) std::this_thread::yield();
@@ -179,6 +179,19 @@ void countem(int id) {
 	if (!winner.test_and_set()) {
 		println("thread {:02} won!", id);
 	}
+}
+
+
+constexpr size_t max_threads { 25 };
+std::once_flag init_flag;
+
+void do_init(size_t id) {
+	print("do init ({}): ", id);
+}
+
+void do_print(size_t id) {
+	std::call_once(init_flag, do_init, id);
+	print("{} ", id);
 }
 
 
@@ -328,18 +341,26 @@ int main() {
 	//auto p6 = async([&] { rabbit1->display(); });
 
 	
-	println("\n--- Share flags and values with std::atomic ---\n");
+	//println("\n--- Share flags and values with std::atomic ---\n");
+	//
+	//vector<thread> swarm;
+	//println("spawn {} threads", max_threads);
+	//for (int i {}; i < max_threads; ++i) {
+	//	swarm.emplace_back(countem, i);
+	//}
+	//ready = true;
+	//for (auto& t : swarm) t.join();
+	//println("global count: {}", (int)g_count);
+	//
+	//println("is g_count lock-free? {}", g_count.is_lock_free());
 
-	vector<thread> swarm;
-	println("spawn {} threads", max_threads);
-	for (int i {}; i < max_threads; ++i) {
-		swarm.emplace_back(countem, i);
+
+	println("\n--- Initialize threads with std::call_once ---\n");
+
+	list<jthread> spawn;
+	for (size_t id {}; id < max_threads; ++id) {
+		spawn.emplace_back(do_print, id);
 	}
-	ready = true;
-	for (auto& t : swarm) t.join();
-	println("global count: {}", (int)g_count);
-
-	println("is g_count lock-free? {}", g_count.is_lock_free());
 
 
 	println("\nend of main()");	
