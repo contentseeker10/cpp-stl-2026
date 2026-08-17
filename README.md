@@ -63,3 +63,14 @@ Practical projects from book **"C++ STL Cookbook Second Edition" by Bill Weinman
     - Share object members with *aliased smart pointers*
     - Compare *random number generators* and *random number distribution generators*
 7. **Concurrency and Parallelism**
+    - *Sleep* a process for a specific amount of time
+    - Use *std::thread* for concurrency
+    - Use *std::async* for concurrency
+    - Run STL algorithms with *execution policies*
+    - Use *mutex and lock* to safely share data
+    - Share flags and values with *std::atomic*
+    - Intitialize threads with *std::call_once*
+    - Resolve the producer-consumer problem with *std::condition_variable*
+    - Implement multiple producers and consumers
+    - Suspend and resume execution with *coroutines*
+    - Use coroutines for a producer-consumer solution

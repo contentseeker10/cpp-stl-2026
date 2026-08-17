@@ -306,7 +306,8 @@ public:
 
 class scheduler {
 	deque<std::coroutine_handle<>> ready;
-
+	bool f_done { false };
+	deque<size_t> queue {};
 public:
 	void schedule(std::coroutine_handle<> h) {
 		ready.push_back(h);
@@ -318,6 +319,17 @@ public:
 			ready.pop_front();
 			h.resume();
 		}
+	}
+
+	void done(bool f) { f_done = f; }
+	bool done() const { return f_done; }
+
+	void q_push(const size_t& n) { queue.push_back(n); }
+	bool q_empty() const { return queue.empty(); }
+	size_t q_pop() {
+		size_t n = queue.front();
+		queue.pop_front();
+		return n;
 	}
 };
 
@@ -336,6 +348,24 @@ public:
 task worker(scheduler& sched, int id) {
 	for (int i{}; i < 3; ++i) {
 		println("worker {} step {}", id, i);
+		co_await ::yield { sched };
+	}
+}
+
+task producer(scheduler& sched) {
+	for (size_t i {}; i < num_items; ++i) {
+		sched.q_push(i);
+		println("produced {}", i);
+		co_await ::yield { sched };
+	}
+	sched.done(true);
+}
+
+task consumer(scheduler& sched) {
+	while (!sched.q_empty() || !sched.done()) {
+		if (!sched.q_empty()) {
+			println("consumed {}", sched.q_pop());
+		}
 		co_await ::yield { sched };
 	}
 }
@@ -536,17 +566,32 @@ int main() {
 	//println("consumers done.");
 
 
-	println("\n--- Suspend and resume execution with coroutines ---\n");
+	//println("\n--- Suspend and resume execution with coroutines ---\n");
+	//
+	//scheduler sched {};
+	//
+	//auto t1 = worker(sched, 1);
+	//auto t2 = worker(sched, 2);
+	//auto t3 = worker(sched, 3);
+	//
+	//sched.schedule(t1.handle);
+	//sched.schedule(t2.handle);
+	//sched.schedule(t3.handle);
+	//
+	//sched.run();
+
+
+	println("\n--- Use coroutines for a producer-consumer solution ---\n");
 
 	scheduler sched {};
 
-	auto t1 = worker(sched, 1);
-	auto t2 = worker(sched, 2);
-	auto t3 = worker(sched, 3);
+	auto p1 = producer(sched);
+	auto p2 = producer(sched);
+	auto c = consumer(sched);
 
-	sched.schedule(t1.handle);
-	sched.schedule(t2.handle);
-	sched.schedule(t3.handle);
+	sched.schedule(p1.handle);
+	sched.schedule(p2.handle);
+	sched.schedule(c.handle);
 
 	sched.run();
 
