@@ -21,6 +21,7 @@
 #include <future>
 #include <execution>
 #include <mutex>
+#include <atomic>
 
 using std::print, std::println;
 using std::string, std::string_view;
@@ -164,6 +165,23 @@ public:
 	}
 };
 
+
+std::atomic<bool> ready {};
+std::atomic<uint64_t> g_count {};
+std::atomic_flag winner {};
+
+constexpr int max_count { 1'000 };
+constexpr int max_threads { 100 };
+
+void countem(int id) {
+	while (!ready) std::this_thread::yield();
+	for (int i {}; i < max_count; ++i) ++g_count;
+	if (!winner.test_and_set()) {
+		println("thread {:02} won!", id);
+	}
+}
+
+
 int main() {
 	//{
 	//	println("\n--- Sleep a process for a specific amount of time ---\n");
@@ -276,40 +294,52 @@ int main() {
 	//println("execution::par: {:.3}s", durs2.count()); // 1.1s
 
 
-	println("\n--- Use mutex and lock to safely share data ---\n");
+	//println("\n--- Use mutex and lock to safely share data ---\n");
+	//
+	//auto cat1 = make_unique<Animal>("Felix");
+	//auto tiger1 = make_unique<Animal>("Hobbes");
+	//auto dog1 = make_unique<Animal>("Astro");
+	//auto rabbit1 = make_unique<Animal>("Bugs");
+	//
+	//auto a1 = async([&] { cat1->add_friend(*tiger1); });
+	//auto a2 = async([&] { cat1->add_friend(*rabbit1); });
+	//auto a3 = async([&] { rabbit1->add_friend(*dog1); });
+	//auto a4 = async([&] { rabbit1->add_friend(*cat1); });
+	//
+	//a1.wait();
+	//a2.wait();
+	//a3.wait();
+	//a4.wait();
+	//
+	//auto p1 = async([&] { cat1->display(); });
+	//auto p2 = async([&] { tiger1->display(); });
+	//auto p3 = async([&] { dog1->display(); });
+	//auto p4 = async([&] { rabbit1->display(); });
+	//
+	//p1.wait();
+	//p2.wait();
+	//p3.wait();
+	//p4.wait();
+	//
+	//auto a5 = async([&] { cat1->delete_friend(*rabbit1); });
+	//a5.wait();
+	//
+	//auto p5 = async([&] { cat1->display(); });
+	//auto p6 = async([&] { rabbit1->display(); });
 
-	auto cat1 = make_unique<Animal>("Felix");
-	auto tiger1 = make_unique<Animal>("Hobbes");
-	auto dog1 = make_unique<Animal>("Astro");
-	auto rabbit1 = make_unique<Animal>("Bugs");
+	
+	println("\n--- Share flags and values with std::atomic ---\n");
 
-	auto a1 = async([&] { cat1->add_friend(*tiger1); });
-	auto a2 = async([&] { cat1->add_friend(*rabbit1); });
-	auto a3 = async([&] { rabbit1->add_friend(*dog1); });
-	auto a4 = async([&] { rabbit1->add_friend(*cat1); });
+	vector<thread> swarm;
+	println("spawn {} threads", max_threads);
+	for (int i {}; i < max_threads; ++i) {
+		swarm.emplace_back(countem, i);
+	}
+	ready = true;
+	for (auto& t : swarm) t.join();
+	println("global count: {}", (int)g_count);
 
-	a1.wait();
-	a2.wait();
-	a3.wait();
-	a4.wait();
-
-	auto p1 = async([&] { cat1->display(); });
-	auto p2 = async([&] { tiger1->display(); });
-	auto p3 = async([&] { dog1->display(); });
-	auto p4 = async([&] { rabbit1->display(); });
-
-	p1.wait();
-	p2.wait();
-	p3.wait();
-	p4.wait();
-
-	auto a5 = async([&] { cat1->delete_friend(*rabbit1); });
-	a5.wait();
-
-	auto p5 = async([&] { cat1->display(); });
-	auto p6 = async([&] { rabbit1->display(); });
-
-
+	println("is g_count lock-free? {}", g_count.is_lock_free());
 
 
 	println("\nend of main()");	
