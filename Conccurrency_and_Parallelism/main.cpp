@@ -200,8 +200,8 @@ namespace this_thread = std::this_thread;
 using guard_t = std::lock_guard<std::mutex>;
 using lock_t = std::unique_lock<std::mutex>;
 
-constexpr size_t num_items { 10 };
-constexpr auto delay_time { 200ms };
+constexpr size_t num_items { 15 };
+constexpr auto delay_time { 50ms };
 
 deque<size_t> q {};
 std::mutex mtx {};
@@ -232,6 +232,44 @@ void consumer() {
 		}
 	}
 	println("finished!");
+}
+
+
+constexpr auto consumer_wait { 100ms };
+constexpr size_t queue_limit { 5 };
+constexpr size_t num_producers { 3 };
+constexpr size_t num_consumers { 5 };
+
+deque<string> qs {};
+std::mutex q_mutex {};
+std::condition_variable cv_producer {};
+std::condition_variable cv_consumer {};
+bool production_complete {};
+
+void producer_new(const size_t id) {
+	for (size_t i {}; i < num_items; ++i) {
+		this_thread::sleep_for(delay_time * id);
+		lock_t lock { q_mutex };
+		cv_producer.wait(lock, [&] {
+			return qs.size() < queue_limit;
+		});
+		qs.push_back(std::format("pid {}, qs {}, item {:02}\n", id, qs.size(), i + 1));
+		cv_consumer.notify_all();
+	}
+}
+
+void consumer_new(const size_t id) {
+	while (!production_complete) {
+		lock_t lock { q_mutex };
+		cv_consumer.wait_for(lock, consumer_wait, [&] {
+			return !qs.empty();
+		});
+		if (!qs.empty()) {
+			print("cid {}: {}", id, qs.front());
+			qs.pop_front();
+		}
+		cv_producer.notify_all();
+	}
 }
 
 
@@ -403,10 +441,31 @@ int main() {
 	//}
 
 
-	println("Resolve the producer-consumer problem with std::condition_variable");
+	//println("\n--- Resolve the producer-consumer problem with std::condition_variable ---\n");
+	//
+	//jthread t1 { producer };
+	//jthread t2 { consumer };
 
-	jthread t1 { producer };
-	jthread t2 { consumer };
+
+	println("\n--- Implement multiple producers and consumers ---\n");
+
+	list<std::future<void>> producers;
+	list<std::future<void>> consumers;
+
+	for (size_t i {}; i < num_producers; ++i) {
+		producers.emplace_back(async(producer_new, i));
+	}
+
+	for (size_t i {}; i < num_consumers; ++i) {
+		consumers.emplace_back(async(consumer_new, i));
+	}
+
+	for (auto& f : producers) f.wait();
+	production_complete = true;
+	println("producers done.");
+
+	for (auto& f : consumers) f.wait();
+	println("consumers done.");
 
 
 	println("\nend of main()");	
